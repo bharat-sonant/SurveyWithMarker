@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="false">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="?attr/colorPrimary"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Welcome to WeVOIS"
+                android:textColor="#fff"
+                android:textSize="22dp" />
+            <TextView
+                android:id="@+id/BackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_arrow_back_black_24dp"
+                android:textColor="#fff"
+                android:textSize="22dp" />
+        </androidx.appcompat.widget.Toolbar>
+
+        <EditText
+            android:id="@+id/etName"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="Enter name"
+            android:inputType="textCapSentences"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.578"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+        <LinearLayout
+            android:id="@+id/linearmobile"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="10dp"
+            android:weightSum="100"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/etName"
+            app:layout_constraintStart_toStartOf="@+id/etName"
+            app:layout_constraintTop_toBottomOf="@+id/etName">
+
+            <EditText
+                android:id="@+id/etMobile"
+                android:layout_width="0dp"
+                android:layout_weight="100"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:background="@drawable/border"
+                android:hint="Enter Mobile No."
+                android:digits="1234567890,"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp" />
+        </LinearLayout>
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/linearmobile"
+            app:layout_constraintStart_toStartOf="@+id/linearmobile"
+            app:layout_constraintTop_toBottomOf="@+id/linearmobile">
+            <RadioButton
+                android:id="@+id/radio_awasiye"
+                android:layout_width="0dp"
+                android:layout_weight="50"
+                android:checked="true"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:textSize="18dp"
+                android:text="आवासीय" />
+
+            <RadioButton
+                android:id="@+id/radio_com"
+                android:layout_width="0dp"
+                android:layout_weight="50"
+                android:layout_height="wrap_content"
+                android:onClick="onRadioButtonClicked"
+                android:textSize="18dp"
+                android:text="व्यावसायिक" />
+        </RadioGroup>
+        <Spinner
+            android:id="@+id/spnrHouseType"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/backgroundboundari"
+            android:overlapAnchor="false"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="@+id/radioGroup"
+            app:layout_constraintStart_toStartOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+        <EditText
+            android:id="@+id/etTotalHouse"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="Enter Total Houses"
+            android:inputType="number"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/spnrHouseType"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/spnrHouseType"
+            app:layout_constraintTop_toBottomOf="@+id/spnrHouseType" />
+
+        <EditText
+            android:id="@+id/etAddress"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="Enter Address"
+            android:inputType="textCapSentences"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/spnrHouseType"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/spnrHouseType"
+            app:layout_constraintTop_toBottomOf="@+id/etTotalHouse" />
+
+        <EditText
+            android:id="@+id/etColonyName"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:hint="Enter Colony Name"
+            android:inputType="textCapSentences"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            app:layout_constraintEnd_toEndOf="@+id/etAddress"
+            app:layout_constraintStart_toStartOf="@+id/etAddress"
+            app:layout_constraintTop_toBottomOf="@+id/etAddress" />
+
+        <LinearLayout
+            android:id="@+id/linearSave"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="@+id/etColonyName"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="@+id/etColonyName"
+            app:layout_constraintTop_toBottomOf="@+id/etColonyName">
+            <Button
+                android:id="@+id/button_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/camerabutton"
+                android:textAllCaps="false"/>
+            <View
+                android:layout_width="10dp"
+                android:layout_height="match_parent"/>
+            <Button
+                android:id="@+id/btnSaveDetails"
+                android:layout_width="0dp"
+                android:layout_weight="100"
+                android:layout_height="50dp"
+                android:background="@drawable/backgroundgreendark"
+                android:text="Save Details"
+                android:textColor="#fff"
+                android:textSize="17dp" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="20dp"
+            android:background="#10AD24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearSave"></View>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#D6F7D9"
+            android:orientation="vertical"
+            android:weightSum="100"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view1">
+
+            <Button
+                android:id="@+id/btnRevisit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/backgroundgreendark"
+                android:text="revisit"
+                android:textColor="#fff"
+                android:textSize="17dp"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvRevisitNote" />
+
+            <Button
+                android:id="@+id/btnSaveReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/backgroundgreendark"
+                android:text="SAVE REASON"
+                android:textColor="#fff"
+                android:textSize="17dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/spnrHouseTypeCardRevisit" />
+            <EditText
+                android:id="@+id/revisitNameForm"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:hint="Enter name"
+                android:paddingLeft="10dp"
+                android:visibility="gone"
+                android:background="@drawable/border"
+                app:layout_constraintTop_toBottomOf="@+id/btnRevisit"/>
+            <Spinner
+                android:id="@+id/spnrReason"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/backgroundboundari"
+                android:drawablePadding="10dp"
+                android:overlapAnchor="false"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:spinnerMode="dropdown"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@+id/etMobile"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/etMobile"
+                app:layout_constraintTop_toBottomOf="@+id/revisitNameForm"
+                tools:ignore="NotSibling" />
+            <RadioGroup
+                android:id="@+id/radioGroupCardRevisit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="@+id/spnrReason"
+                app:layout_constraintStart_toStartOf="@+id/spnrReason"
+                app:layout_constraintTop_toBottomOf="@+id/spnrReason">
+                <RadioButton
+                    android:id="@+id/radio_awasiyeCardRevisit"
+                    android:layout_width="0dp"
+                    android:layout_weight="50"
+                    android:checked="true"
+                    android:layout_height="wrap_content"
+                    android:onClick="onRadioButtonClicked"
+                    android:textSize="18dp"
+                    android:text="आवासीय" />
+
+                <RadioButton
+                    android:id="@+id/radio_comCardRevisit"
+                    android:layout_width="0dp"
+                    android:layout_weight="50"
+                    android:layout_height="wrap_content"
+                    android:onClick="onRadioButtonClicked"
+                    android:textSize="18dp"
+                    android:text="व्यावसायिक" />
+            </RadioGroup>
+            <Spinner
+                android:id="@+id/spnrHouseTypeCardRevisit"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/backgroundboundari"
+                android:overlapAnchor="false"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:spinnerMode="dropdown"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@+id/radioGroupCardRevisit"
+                app:layout_constraintStart_toStartOf="@+id/radioGroupCardRevisit"
+                app:layout_constraintTop_toBottomOf="@+id/radioGroupCardRevisit" />
+
+            <TextView
+                android:id="@+id/tvRevisitNote"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="50"
+                android:gravity="center|left"
+                android:text="NOTE :- अगर किसी भी वजह से सर्वे पूरा नहीं हो पाया है तो निचे दिए हुए 'Revisit House'  बटन पर क्लिक करे "
+                android:textColor="#DF5344"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.wevois.surveyapp">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.MODIFY_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+    <application
+        android:allowBackup="true"
+        android:hardwareAccelerated="false"
+        android:configChanges="orientation|keyboardHidden|screenSize"
+        android:icon="@drawable/entity_survey_app_logo"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:roundIcon="@drawable/entity_survey_app_logo"
+        android:screenOrientation="portrait"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".Activity.RevisitActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".Activity.ScanCardActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.OfflineActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.FormActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.VerifyActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".Activity.MapsActivity"
+            android:label="@string/title_activity_maps"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.FileDownloadActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.RegisterActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Activity.LoginActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".HomeActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SelectActivity"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="ocr"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false"
+            tools:ignore="WrongManifestParent" />
+    </application>
+
+
+</manifest>
