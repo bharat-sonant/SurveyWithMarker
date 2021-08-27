@@ -447,6 +447,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             preferences.edit().putString("cardNo", "").apply();
             preferences.edit().putString("houseType", houseT).apply();
             preferences.edit().putString("markingKey", markingKey).apply();
+
             JSONObject jsonObject;
             int isVerified = 1;
             String cardNo = "";
@@ -463,6 +464,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     isVerified = 3;
                 }
+                Log.d("TAG", "cardScanMethod: check card "+cardNo);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

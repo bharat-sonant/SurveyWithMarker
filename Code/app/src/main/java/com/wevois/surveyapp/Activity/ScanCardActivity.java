@@ -208,7 +208,7 @@ public class ScanCardActivity extends AppCompatActivity {
                                 stringBuilder.append(item.getValue());
                                 stringBuilder.append("\n");
                                 runOnUiThread(() -> scanTv.setText("" + item.getValue()));
-                                if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC")) {
+                                if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC")|| item.getValue().contains("SHA")) {
                                     runOnUiThread(() -> {
                                         try {
                                             JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));

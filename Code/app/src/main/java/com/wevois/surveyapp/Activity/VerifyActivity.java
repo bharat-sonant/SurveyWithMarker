@@ -41,7 +41,7 @@ public class VerifyActivity extends AppCompatActivity {
         cardNoText = findViewById(R.id.cardNo);
         continueBtn = findViewById(R.id.continueEnter);
         rfidNumber = preferences.getString("rfid", "");
-        if (common.getDatabaseStorage(this).equals("Sikar") || common.getDatabaseStorage(this).equals("Jaipur") || common.getDatabaseStorage(this).equals("Test")) {
+        if (common.getDatabaseStorage(this).equals("Sikar") || common.getDatabaseStorage(this).equals("Jaipur") || common.getDatabaseStorage(this).equals("Test")|| common.getDatabaseStorage(this).equals("Shahpura")) {
             cardNoText.setText(preferences.getString("cardNo", ""));
         }
         setAction();

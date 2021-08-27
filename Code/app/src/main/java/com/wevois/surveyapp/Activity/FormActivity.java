@@ -34,6 +34,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
@@ -102,10 +103,9 @@ public class FormActivity extends AppCompatActivity {
     SurfaceHolder.Callback surfaceViewCallBack;
     Camera.PictureCallback pictureCallback;
     File myPath = null;
-
     JSONObject dataObject = new JSONObject();
     JSONObject jsonObject = new JSONObject();
-    AlertDialog customTimerAlertBox;
+    AlertDialog customTimerAlertBox, customTimerAlertBoxForImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -781,7 +781,6 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void checkAllDataSend(String message) {
-        Log.d("TAG", "checkAllDataSend: check " + message);
         try {
             JSONObject tempData = jsonObject.getJSONObject("details");
             if (tempData.getString("StorageImage").equalsIgnoreCase("yes") && tempData.getString("Houses").equalsIgnoreCase("yes") &&
@@ -945,7 +944,6 @@ public class FormActivity extends AppCompatActivity {
     private void focusOnTouch(MotionEvent event) throws Exception {
         if (mCamera != null) {
             try {
-
                 Camera.Parameters parameters = mCamera.getParameters();
                 if (parameters.getMaxNumMeteringAreas() > 0) {
                     parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -1080,7 +1078,6 @@ public class FormActivity extends AppCompatActivity {
                     @Override
                     protected Boolean doInBackground(Void... p) {
                         mCamera.takePicture(null, null, null, pictureCallback);
-                        Log.d("TAG", "doInBackground: check A");
                         return null;
                     }
                 }.execute();
@@ -1100,19 +1097,22 @@ public class FormActivity extends AppCompatActivity {
             pictureCallback = (bytes, camera) -> {
                 Matrix matrix = new Matrix();
                 matrix.postRotate(90F);
-                identityBitmap = Bitmap.createBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length), 0, 0, BitmapFactory.decodeByteArray(bytes, 0, bytes.length).getWidth(), BitmapFactory.decodeByteArray(bytes, 0, bytes.length).getHeight(), matrix, true);
+                Bitmap b = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Bitmap bitmaps = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+                Bitmap bitmap = Bitmap.createScaledBitmap(bitmaps, 400, 600, false);
+
                 camera.stopPreview();
                 if (camera != null) {
                     camera.release();
                     mCamera = null;
                 }
-                setOnLocal();
                 try {
                     if (customTimerAlertBox != null) {
                         customTimerAlertBox.dismiss();
                     }
                 } catch (Exception e) {
                 }
+                showAlertBoxForImage(bitmap);
             };
             surfaceView.setOnTouchListener((view, motionEvent) -> {
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1125,6 +1125,44 @@ public class FormActivity extends AppCompatActivity {
                 return false;
             });
         });
+    }
+
+    private void showAlertBoxForImage(Bitmap i) {
+        try {
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+        } catch (Exception e) {
+        }
+        LayoutInflater inflater = getLayoutInflater();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(FormActivity.this);
+        View dialogLayout = inflater.inflate(R.layout.image_view_layout, null);
+        alertDialog.setView(dialogLayout);
+        alertDialog.setCancelable(false);
+        ImageView markerImage = dialogLayout.findViewById(R.id.marker_iv);
+        if (i != null) {
+            markerImage.setImageBitmap(i);
+        }
+        dialogLayout.findViewById(R.id.okeyBtn).setOnClickListener(view1 -> {
+            common.setProgressBar("Processing...", FormActivity.this, FormActivity.this);
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+            identityBitmap = i;
+            setOnLocal();
+        });
+        Button closeBtn = dialogLayout.findViewById(R.id.close_view_btn);
+        closeBtn.setOnClickListener(view1 -> {
+            common.closeDialog();
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+            isMoved = true;
+        });
+        customTimerAlertBoxForImage = alertDialog.create();
+        if (!isFinishing()) {
+            customTimerAlertBoxForImage.show();
+        }
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -1266,23 +1304,39 @@ public class FormActivity extends AppCompatActivity {
                 }
                 return;
             } else {
-                try {
-                    common.setProgressBar("Please Wait...", this, this);
-                    DatabaseReference databaseReference = databaseReferencePath.child("EntitySurveyData").child("RevisitRequest").child(preferences.getString("ward", "")).
-                            child(preferences.getString("line", "")).child(preferences.getString("cardNo", ""));
-                    databaseReference.child("lat").setValue(preferences.getString("lat", ""));
-                    databaseReference.child("lng").setValue(preferences.getString("lng", ""));
-                    databaseReference.child("reason").setValue(spinnerRevisitReason.getSelectedItem().toString());
-                    databaseReference.child("houseType").setValue(jsonArrayHouseTypeRevisit.get(spinnerRevisitHouseType.getSelectedItemPosition() - 1).toString());
-                    databaseReference.child("date").setValue(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-                    databaseReference.child("id").setValue(preferences.getString("userId", ""));
-                    databaseReference.child("revisitedBy").setValue("Surveyor");
-                    databaseReference.child("name").setValue(revisitName.getText().toString());
-                    dailyRevisitRequestCount();
-                    totalRevisitRequest();
-                    showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद !", true);
-                } catch (Exception e) {
-                }
+                common.setProgressBar("Please Wait...", this, this);
+                databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int count = 1;
+                        if (dataSnapshot.getValue() != null) {
+                            count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                        }
+                        databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
+                        try {
+                            HashMap<String, String> data = new HashMap<>();
+                            data.put("lat", preferences.getString("lat", ""));
+                            data.put("lng", preferences.getString("lng", ""));
+                            data.put("reason", spinnerRevisitReason.getSelectedItem().toString());
+                            data.put("houseType", jsonArrayHouseTypeRevisit.get(spinnerRevisitHouseType.getSelectedItemPosition() - 1).toString());
+                            data.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                            data.put("id", preferences.getString("userId", ""));
+                            data.put("revisitedBy", "Surveyor");
+                            data.put("name", revisitName.getText().toString());
+                            databaseReferencePath.child("EntitySurveyData").child("RevisitRequest").child(preferences.getString("ward", "")).child(preferences.getString("line", "")).child(preferences.getString("cardNo", "")).setValue(data);
+                            dailyRevisitRequestCount();
+                            totalRevisitRequest();
+                            showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद !", true);
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
             }
         });
     }

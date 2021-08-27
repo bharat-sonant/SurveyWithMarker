@@ -20,6 +20,9 @@ public class SelectActivity extends AppCompatActivity {
         findViewById(R.id.reengus).setOnClickListener(view -> {
             setDatabasePath("reengus");
         });
+        findViewById(R.id.shahpura).setOnClickListener(view -> {
+            setDatabasePath("shahpura");
+        });
         findViewById(R.id.jaipur).setOnClickListener(view -> setDatabasePath("jaipur"));
         TextView versionName = findViewById(R.id.versionName);
         versionName.setOnLongClickListener(v -> {
@@ -41,6 +44,9 @@ public class SelectActivity extends AppCompatActivity {
             }else if (city.equals("jaipur")) {
                 dbPath = "https://dtdjaipur.firebaseio.com/";
                 storagePath = "Jaipur";
+            } else if (city.equals("shahpura")) {
+                dbPath = "https://dtdshahpura.firebaseio.com/";
+                storagePath = "Shahpura";
             } else {
                 dbPath = "https://dtdnavigator.firebaseio.com/";
                 storagePath = "Sikar";

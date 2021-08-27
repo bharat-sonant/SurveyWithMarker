@@ -133,25 +133,41 @@ public class RevisitActivity extends AppCompatActivity {
                 return;
             } else {
                 common.setProgressBar("Please Wait...", this, this);
-                try {
-                    String ward = preferences.getString("ward", "");
-                    Revisited revisited = new Revisited(preferences.getString("lat", ""), preferences.getString("lng", ""), spinnerRevisit.getSelectedItem().toString(), jsonArrayHouseType.get(spinnerHouseType.getSelectedItemPosition() - 1).toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), preferences.getString("userId", ""), "Surveyor", name.getText().toString());
-                    DatabaseReference databaseReference = databaseReferencePath.child("EntitySurveyData").child("RevisitRequest").child(ward).child(preferences.getString("line", ""));
-                    databaseReference.push().setValue(revisited);
-                    dailyRevisitRequestCount();
-                    totalRevisitRequest();
-                    common.closeDialog();
-                    AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-                    builder1.setMessage("आपका सर्वे पूरा हुआ, धन्यवाद !");
-                    builder1.setCancelable(true);
-                    builder1.setPositiveButton("OK", (dialog, id) -> {
-                        dialog.cancel();
-                        finish();
-                    });
-                    AlertDialog alert11 = builder1.create();
-                    alert11.show();
-                } catch (Exception e) {
-                }
+                databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        int count = 1;
+                        if (dataSnapshot.getValue() != null) {
+                            count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                        }
+                        databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
+                        try {
+                            String ward = preferences.getString("ward", "");
+                            Revisited revisited = new Revisited(preferences.getString("lat", ""), preferences.getString("lng", ""), spinnerRevisit.getSelectedItem().toString(), jsonArrayHouseType.get(spinnerHouseType.getSelectedItemPosition() - 1).toString(), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), preferences.getString("userId", ""), "Surveyor", name.getText().toString());
+                            DatabaseReference databaseReference = databaseReferencePath.child("EntitySurveyData").child("RevisitRequest").child(ward).child(preferences.getString("line", ""));
+                            databaseReference.push().setValue(revisited);
+                            dailyRevisitRequestCount();
+                            totalRevisitRequest();
+                            common.closeDialog();
+                            AlertDialog.Builder builder1 = new AlertDialog.Builder(RevisitActivity.this);
+                            builder1.setMessage("आपका सर्वे पूरा हुआ, धन्यवाद !");
+                            builder1.setCancelable(true);
+                            builder1.setPositiveButton("OK", (dialog, id) -> {
+                                dialog.cancel();
+                                finish();
+                            });
+                            AlertDialog alert11 = builder1.create();
+                            alert11.show();
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
             }
         });
         awasiyeBtn.setOnClickListener(view12 -> {
