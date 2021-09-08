@@ -63,7 +63,7 @@ public class OfflineActivity extends AppCompatActivity {
     ArrayList<String> cardNumbers = new ArrayList<>();
     int position = 0;
     JSONObject tempObject = new JSONObject();
-    String currentDate, countCheck = "2", markingKey = "", ward, address, cardNo, colonyName, createdDate, houseType, lat, lng, line, name, rfid, mobile, servingCount = "", cardType = "";
+    String currentDate, countCheck = "2", markingKey = "", markingRevisit = "", ward, address, cardNo, createdDate, houseType, lat, lng, line, name, rfid, mobile, servingCount = "", cardType = "";
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -128,7 +128,6 @@ public class OfflineActivity extends AppCompatActivity {
                 cardNo = cardJsonObject.getString("cardno");
                 mobile = cardJsonObject.getString("mobile");
                 address = cardJsonObject.getString("address");
-                colonyName = cardJsonObject.getString("colonyname");
                 createdDate = cardJsonObject.getString("createddate");
                 houseType = cardJsonObject.getString("housetype");
                 lat = cardJsonObject.getString("lat");
@@ -137,6 +136,7 @@ public class OfflineActivity extends AppCompatActivity {
                 name = cardJsonObject.getString("name");
                 rfid = cardJsonObject.getString("rfid");
                 markingKey = cardJsonObject.getString("markingKey");
+                markingRevisit = cardJsonObject.getString("markingRevisit");
                 cardType = cardJsonObject.getString("cardType");
                 tempObject = cardJsonObject.getJSONObject("details");
                 String lastCharacterOfNumber = mobile.substring(mobile.length() - 1);
@@ -364,7 +364,6 @@ public class OfflineActivity extends AppCompatActivity {
                         housesMap.put("address", address);
                         housesMap.put("cardNo", cardNo);
                         housesMap.put("phaseNo", "2");
-                        housesMap.put("colonyName", colonyName);
                         if (countCheck.equals("2")) {
                             housesMap.put("surveyorId", preferences.getString("userId", ""));
                         } else {
@@ -438,13 +437,80 @@ public class OfflineActivity extends AppCompatActivity {
     }
 
     private void saveEntityData() {
-        HashMap<String, Object> datas = new HashMap<>();
-        datas.put("cardNumber", cardNo);
-        datas.put("isSurveyed", "yes");
-        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/" + markingKey).updateChildren(datas).addOnCompleteListener(task111 -> {
-            if (task111.isSuccessful()) {
-                removeLocalData("EntityMarking");
-                checkAllDataSend("EntityMarking");
+        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/surveyedCount").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int count = 1;
+                if (dataSnapshot.getValue() != null) {
+                    count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                }
+                if (countCheck.equals("2")) {
+                    try {
+                        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/surveyedCount").setValue("" + count);
+                    } catch (Exception e) {
+                    }
+                }
+
+                databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/" + markingKey + "/cardNumber").setValue(cardNo).addOnCompleteListener(task111 -> {
+                    if (task111.isSuccessful()) {
+                        if (!preferences.getString("markingRevisit", "no").equalsIgnoreCase("no")) {
+                            databaseReferencePath.child("EntitySurveyData/RevisitRequest/" + ward + "/" + line + "/" + markingRevisit).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot1) {
+                                    if (dataSnapshot1.getValue() != null) {
+                                        databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + ward + "/" + line + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                int revisitCount = 1;
+                                                if (dataSnapshot.getValue() != null) {
+                                                    revisitCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                                                }
+                                                databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + ward + "/" + line + "/" + markingRevisit).setValue(dataSnapshot1.getValue());
+                                                databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + ward + "/" + line + "/lineRevisitCount").setValue(revisitCount);
+                                                databaseReferencePath.child("EntitySurveyData/RevisitRequest/" + ward + "/" + line + "/" + markingRevisit).removeValue();
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                        databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + ward + "/totalRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                int totalCount = 1;
+                                                if (dataSnapshot.getValue() != null) {
+                                                    totalCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                                                }
+                                                databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + ward + "/totalRevisitCount").setValue(totalCount);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+                                    }
+                                    removeLocalData("EntityMarking");
+                                    checkAllDataSend("entityMarking");
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        } else {
+                            removeLocalData("EntityMarking");
+                            checkAllDataSend("entityMarking");
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }
@@ -556,7 +622,6 @@ public class OfflineActivity extends AppCompatActivity {
         housesPath.child("address").setValue(address);
         housesPath.child("cardNo").setValue(cardNo);
         housesPath.child("phaseNo").setValue("2");
-        housesPath.child("colonyName").setValue(colonyName);
         housesPath.child("createdDate").setValue(createdDate);
         housesPath.child("houseType").setValue(houseType);
         housesPath.child("latLng").setValue("(" + lat + "," + lng + ")");

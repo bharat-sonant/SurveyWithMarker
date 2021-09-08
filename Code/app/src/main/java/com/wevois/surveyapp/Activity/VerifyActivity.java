@@ -108,6 +108,7 @@ public class VerifyActivity extends AppCompatActivity {
     private void moveToSurveyForm() {
         common.closeDialog();
         Intent intent = new Intent(VerifyActivity.this, FormActivity.class);
+        intent.putExtra("from", "verify");
         intent.putExtra("line", currentLine);
         intent.putExtra("houseType", houseType);
         intent.putExtra("markingKey", markingKey);

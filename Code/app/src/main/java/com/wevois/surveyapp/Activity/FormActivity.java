@@ -55,6 +55,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
+import com.wevois.surveyapp.Revisited;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,7 +77,7 @@ public class FormActivity extends AppCompatActivity {
     Button btnRevisitHouse, btnSaveRevisitReason;
     RadioGroup revisitRadioGroup;
     RadioButton awasiyeBtn, commercialBtn, awasiyeBtnCardRevisit, commercialBtnCardRevisit;
-    EditText name, revisitName, address, colony, mobileNo, getTotalHouse;
+    EditText name, revisitName, address, mobileNo, getTotalHouse;
     TextView tvRevisit;
     String mobileNumber = "", hT = "", markingKey = "";
     ArrayList<String> oldMobiles = new ArrayList<>(), newMobiles = new ArrayList<>();
@@ -93,7 +94,7 @@ public class FormActivity extends AppCompatActivity {
     JSONArray jsonArrayHouseType = new JSONArray();
     JSONArray jsonArrayHouseTypeRevisit = new JSONArray();
     boolean isMoved = true;
-    String storagePath = "";
+    String storagePath = "", from = "";
     Bitmap identityBitmap = null;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     private Camera mCamera;
@@ -130,7 +131,10 @@ public class FormActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        fillSurveyDetailsIfAlreadyExists();
+        from = getIntent().getStringExtra("from");
+        if (!from.equalsIgnoreCase("map")) {
+            fillSurveyDetailsIfAlreadyExists();
+        }
     }
 
     private void initControls() {
@@ -147,7 +151,6 @@ public class FormActivity extends AppCompatActivity {
         spinnerRevisitHouseType = findViewById(R.id.spnrHouseTypeCardRevisit);
         tvRevisit = findViewById(R.id.tvRevisitNote);
         address = findViewById(R.id.etAddress);
-        colony = findViewById(R.id.etColonyName);
         spinnerRevisitReason = findViewById(R.id.spnrReason);
         btnRevisitHouse = findViewById(R.id.btnRevisit);
         btnSaveRevisitReason = findViewById(R.id.btnSaveReason);
@@ -195,9 +198,18 @@ public class FormActivity extends AppCompatActivity {
                                 i = 2;
                             }
                             if (validateSurveyForm()) {
-                                String mobile = mobileNo.getText().toString();
-                                String rfID = preferences.getString("rfid", "");
-                                saveOfflineData(mobile, rfID, i);
+                                if (from.equalsIgnoreCase("map")) {
+                                    if (i==1) {
+                                        saveRfidImageData();
+                                    }else {
+                                        isMoved = true;
+                                        common.showAlertBox("No internet connection.",false,FormActivity.this);
+                                    }
+                                } else {
+                                    String mobile = mobileNo.getText().toString();
+                                    String rfID = preferences.getString("rfid", "");
+                                    saveOfflineData(mobile, rfID, i);
+                                }
                             } else {
                                 isMoved = true;
                             }
@@ -216,7 +228,11 @@ public class FormActivity extends AppCompatActivity {
             btnRevisitHouse.setVisibility(View.GONE);
         });
         btnSaveRevisitReason.setOnClickListener(view1 -> {
-            sendRevisitData();
+            if (from.equalsIgnoreCase("map")){
+                common.showAlertBox("card number not found.",false,this);
+            }else {
+                sendRevisitData();
+            }
         });
 
         findViewById(R.id.button_image).setOnClickListener(view -> {
@@ -275,8 +291,6 @@ public class FormActivity extends AppCompatActivity {
                                                     e.printStackTrace();
                                                 }
                                             }
-                                            if (snapshot.child("colonyName").getValue() != null && snapshot.child("colonyName").getValue().toString().length() > 0)
-                                                colony.setText(snapshot.child("colonyName").getValue().toString());
                                             if (snapshot.child("address").getValue() != null && snapshot.child("address").getValue().toString().length() > 0)
                                                 address.setText(snapshot.child("address").getValue().toString());
                                             if (snapshot.child("servingCount").getValue() != null && snapshot.child("servingCount").getValue().toString().length() > 0)
@@ -357,11 +371,6 @@ public class FormActivity extends AppCompatActivity {
                 address.requestFocus();
                 common.closeDialog();
                 isValid = false;
-            } else if (colony.getText().toString().length() == 0) {
-                colony.setError("Please enter colony name");
-                colony.requestFocus();
-                common.closeDialog();
-                isValid = false;
             } else if (identityBitmap == null) {
                 common.showAlertBox("कृपया पहले फोटो खींचे .", false, this);
                 isValid = false;
@@ -414,7 +423,6 @@ public class FormActivity extends AppCompatActivity {
                 jsonObject.put("ward", ward);
                 jsonObject.put("address", address.getText().toString());
                 jsonObject.put("cardno", cardNo);
-                jsonObject.put("colonyname", colony.getText().toString());
                 jsonObject.put("createddate", timeFormat.format(new Date()));
                 jsonObject.put("housetype", jsonArrayHouseType.get(spinnerHouseType.getSelectedItemPosition() - 1).toString());
                 jsonObject.put("lat", preferences.getString("lat", ""));
@@ -423,6 +431,7 @@ public class FormActivity extends AppCompatActivity {
                 jsonObject.put("name", name.getText().toString());
                 jsonObject.put("rfid", rfID);
                 jsonObject.put("markingKey", markingKey);
+                jsonObject.put("markingRevisit", preferences.getString("markingRevisit", "no"));
                 JSONObject temp = new JSONObject();
                 temp.put("StorageImage", "no");
                 temp.put("Houses", "no");
@@ -581,7 +590,6 @@ public class FormActivity extends AppCompatActivity {
             housesMap.put("address", address.getText().toString());
             housesMap.put("cardNo", currentCardNumber);
             housesMap.put("phaseNo", "2");
-            housesMap.put("colonyName", colony.getText().toString());
             if (countCheck.equals("2")) {
                 housesMap.put("createdDate", timeFormat.format(new Date()));
                 housesMap.put("surveyorId", preferences.getString("userId", ""));
@@ -653,15 +661,79 @@ public class FormActivity extends AppCompatActivity {
 
     private void saveEntityMarkingData() {
         FormActivity.this.runOnUiThread(() -> {
-            HashMap<String, Object> datas = new HashMap<>();
-            datas.put("cardNumber", currentCardNumber);
-            datas.put("isSurveyed", "yes");
-            databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + markingKey).updateChildren(datas).addOnCompleteListener(task111 -> {
-                if (task111.isSuccessful()) {
-                    removeLocalData("EntityMarking");
-                    checkAllDataSend("entityMarking");
+            databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/surveyedCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int count = 1;
+                    if (dataSnapshot.getValue() != null) {
+                        count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                    }
+                    if (countCheck.equals("2")) {
+                        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/surveyedCount").setValue("" + count);
+                    }
+                    databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + markingKey + "/cardNumber").setValue(currentCardNumber).addOnCompleteListener(task111 -> {
+                        if (task111.isSuccessful()) {
+                            if (!preferences.getString("markingRevisit", "no").equalsIgnoreCase("no")) {
+                                databaseReferencePath.child("EntitySurveyData/RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingRevisit", "no")).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot1) {
+                                        if (dataSnapshot1.getValue() != null) {
+                                            databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    int revistCount = 1;
+                                                    if (dataSnapshot.getValue() != null) {
+                                                        revistCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                                                    }
+                                                    databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingRevisit", "no")).setValue(dataSnapshot1.getValue());
+                                                    databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue(revistCount);
+                                                    databaseReferencePath.child("EntitySurveyData/RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingRevisit", "no")).removeValue();
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                            databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + preferences.getString("ward", "") + "/totalRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    int totalCount = 1;
+                                                    if (dataSnapshot.getValue() != null) {
+                                                        totalCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                                                    }
+                                                    databaseReferencePath.child("EntitySurveyData/RevisitHistory/" + preferences.getString("ward", "") + "/totalRevisitCount").setValue(totalCount);
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                        }
+                                        removeLocalData("EntityMarking");
+                                        checkAllDataSend("entityMarking");
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            } else {
+                                removeLocalData("EntityMarking");
+                                checkAllDataSend("entityMarking");
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
                 }
             });
+
         });
     }
 
@@ -915,9 +987,13 @@ public class FormActivity extends AppCompatActivity {
             } catch (Exception e) {
             }
             isMoved = false;
-            Intent intent = new Intent(FormActivity.this, VerifyActivity.class);
-            startActivity(intent);
-            finish();
+            if (from.equalsIgnoreCase("map")){
+                finish();
+            }else {
+                Intent intent = new Intent(FormActivity.this, VerifyActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 
@@ -1305,14 +1381,15 @@ public class FormActivity extends AppCompatActivity {
                 return;
             } else {
                 common.setProgressBar("Please Wait...", this, this);
-                databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + "lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         int count = 1;
                         if (dataSnapshot.getValue() != null) {
                             count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                         }
-                        databaseReferencePath.child("EntitySurveyData").child("RevisitRequest/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
+                        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
+                        databaseReferencePath.child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingKey", "") + "/revisitKey").setValue(preferences.getString("cardNo", ""));
                         try {
                             HashMap<String, String> data = new HashMap<>();
                             data.put("lat", preferences.getString("lat", ""));
@@ -1399,6 +1476,149 @@ public class FormActivity extends AppCompatActivity {
             if (!isFinishing()) {
                 alertDAssignment.show();
             }
+        });
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void saveRfidImageData() {
+        FormActivity.this.runOnUiThread(() -> {
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                }
+
+                @Override
+                protected Boolean doInBackground(Void... p) {
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + storagePath + "/SurveyRfidNotFoundCardImage/" + preferences.getString("ward", "") + "/" + preferences.getString("line", ""));
+                    StorageReference mountainImagesRef = storageRef.child(preferences.getString("rfid", "") + ".jpg");
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
+                    byte[] data = baos.toByteArray();
+                    UploadTask uploadTask = mountainImagesRef.putBytes(data);
+                    uploadTask.addOnFailureListener(exception -> {
+                        common.closeDialog();
+                    }).addOnSuccessListener(taskSnapshot -> {
+                        try {
+                            if (myPath != null) {
+                                myPath.delete();
+                            }
+                        } catch (Exception e) {
+                        }
+                        setRfidNotFoundData();
+                    });
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                }
+            }.execute();
+        });
+    }
+
+    private void setRfidNotFoundData() {
+        databaseReferencePath.child("EntityMarkingData/MarkedHouses/"+preferences.getString("ward", "")+"/"+preferences.getString("line", "")+"/"+"lineRfidNotFoundCount").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                int count = 1;
+                if (dataSnapshot.getValue() != null) {
+                    count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
+                }
+                try {
+                    SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String mobile = mobileNo.getText().toString();
+                    String lastCharacterOfNumber = mobile.substring(mobile.length() - 1);
+                    if (lastCharacterOfNumber.equalsIgnoreCase(",")) {
+                        mobile = mobile.substring(0, mobile.length() - 1);
+                    }
+                    HashMap<String, Object> housesMap = new HashMap<>();
+                    housesMap.put("address", address.getText().toString());
+                    housesMap.put("cardNo", "");
+                    housesMap.put("phaseNo", "2");
+                    housesMap.put("createdDate", timeFormat.format(new Date()));
+                    housesMap.put("surveyorId", preferences.getString("userId", ""));
+                    try {
+                        housesMap.put("houseType", jsonArrayHouseType.get(spinnerHouseType.getSelectedItemPosition() - 1).toString());
+                    } catch (JSONException e) {
+                    }
+                    housesMap.put("latLng", "(" + preferences.getString("lat", "") + "," + preferences.getString("lng", "") + ")");
+                    housesMap.put("line", preferences.getString("line", ""));
+                    housesMap.put("name", name.getText().toString());
+                    housesMap.put("mobile", mobile);
+                    if (awasiyeBtn.isChecked()) {
+                        housesMap.put("cardType", "आवासीय");
+                    } else {
+                        housesMap.put("cardType", "व्यावसायिक");
+                    }
+                    housesMap.put("rfid", preferences.getString("rfid", ""));
+                    housesMap.put("ward", preferences.getString("ward", ""));
+                    housesMap.put("cardImage", preferences.getString("rfid", "") + ".jpg");
+                    if (getTotalHouse.getVisibility() == View.VISIBLE) {
+                        housesMap.put("servingCount", getTotalHouse.getText().toString());
+                    }
+                    databaseReferencePath.child("EntitySurveyData/RFIDNotFoundSurvey/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("rfid", "")).setValue(housesMap);
+                    databaseReferencePath.child("EntityMarkingData/MarkedHouses/"+ preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRfidNotFoundCount").setValue("" + count);
+                    databaseReferencePath.child("EntityMarkingData/MarkedHouses/"+ preferences.getString("ward", "") + "/" + preferences.getString("line", "")+"/"+preferences.getString("markingKey", "") + "/rfidNotFoundKey").setValue(preferences.getString("rfid", ""));
+                    totalRfidCount();
+                    dailyRfidCount();
+                    common.closeDialog();
+                } catch (Exception e) {
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void totalRfidCount() {
+        FormActivity.this.runOnUiThread(() -> {
+            String ward = preferences.getString("ward", "");
+            databaseReferencePath.child("EntitySurveyData/TotalRfidNotFoundCount/" + ward).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.getValue() != null) {
+                        String count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
+                        databaseReferencePath.child("EntitySurveyData/TotalRfidNotFoundCount/" + ward).setValue(count);
+                    } else {
+                        databaseReferencePath.child("EntitySurveyData/TotalRfidNotFoundCount/" + ward).setValue("1");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        });
+    }
+
+    private void dailyRfidCount() {
+        FormActivity.this.runOnUiThread(() -> {
+            String ward = preferences.getString("ward", "");
+            String userId = preferences.getString("userId", "");
+            databaseReferencePath.child("EntitySurveyData/DailyRfidNotFoundCount/" + ward + "/" + userId + "/" + currentDate).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    String count="1";
+                    if (dataSnapshot.getValue() != null) {
+                         count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
+                    }
+                    databaseReferencePath.child("EntitySurveyData/DailyRfidNotFoundCount/" + ward + "/" + userId + "/" + currentDate).setValue(count).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद |", true);
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
         });
     }
 }

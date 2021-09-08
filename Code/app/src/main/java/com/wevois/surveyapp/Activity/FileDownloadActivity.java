@@ -217,13 +217,18 @@ public class FileDownloadActivity extends AppCompatActivity {
                                         jsonArray.put(String.valueOf(dataSnapshot.child("latLng").getValue()));
                                         jsonArray.put(dataSnapshot.child("image").getValue().toString());
                                         jsonArray.put(dataSnapshot.child("houseType").getValue().toString());
-                                        if (dataSnapshot.hasChild("isSurveyed")) {
-                                            jsonArray.put(dataSnapshot.child("isSurveyed").getValue().toString());
+                                        if (dataSnapshot.hasChild("revisitKey")) {
+                                            jsonArray.put(dataSnapshot.child("revisitKey").getValue().toString());
                                         } else {
                                             jsonArray.put("no");
                                         }
                                         if (dataSnapshot.hasChild("cardNumber")) {
                                             jsonArray.put(dataSnapshot.child("cardNumber").getValue().toString());
+                                        } else {
+                                            jsonArray.put("no");
+                                        }
+                                        if (dataSnapshot.hasChild("rfidNotFoundKey")) {
+                                            jsonArray.put(dataSnapshot.child("rfidNotFoundKey").getValue().toString());
                                         } else {
                                             jsonArray.put("no");
                                         }

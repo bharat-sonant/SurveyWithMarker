@@ -6,8 +6,6 @@
         android:title="Scan By RFID"/>
     <item  android:id="@+id/scanByCamera"
         android:title="Scan By Camera"/>
-    <item  android:id="@+id/item1"
-        android:title="Revisit"/>
 <!--    <item  android:id="@+id/item3"-->
 <!--        android:title="Show Marker"/>-->
     <item  android:id="@+id/item4"

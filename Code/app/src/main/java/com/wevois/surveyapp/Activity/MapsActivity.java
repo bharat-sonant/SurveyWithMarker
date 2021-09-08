@@ -22,40 +22,25 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Looper;
-import android.text.Html;
-import android.text.InputType;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.akexorcist.googledirection.DirectionCallback;
-import com.akexorcist.googledirection.GoogleDirection;
-import com.akexorcist.googledirection.constant.AvoidType;
-import com.akexorcist.googledirection.constant.RequestResult;
-import com.akexorcist.googledirection.model.Direction;
-import com.akexorcist.googledirection.model.Leg;
-import com.akexorcist.googledirection.model.Route;
-import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -269,14 +254,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void showTodayCardScan() {
-        databaseReferencePath.child("EntitySurveyData").child("DailyHouseCount").child(preferences.getString("ward", "")).child(preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReferencePath.child("EntitySurveyData/DailyHouseCount/"+preferences.getString("ward", "")+"/"+preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                final int[] count = {0};
                 if ((dataSnapshot.getValue() != null) && dataSnapshot.hasChild(date)) {
-                    todayCardScanShow.setText(dataSnapshot.child(date).getValue().toString());
-                } else {
-                    todayCardScanShow.setText("0");
+                    count[0] = Integer.parseInt(dataSnapshot.child(date).getValue().toString());
                 }
+                databaseReferencePath.child("EntitySurveyData/DailyRfidNotFoundCount/"+preferences.getString("ward", "")+"/"+preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if ((dataSnapshot.getValue() != null) && dataSnapshot.hasChild(date)) {
+                            count[0] = count[0] + Integer.parseInt(dataSnapshot.child(date).getValue().toString());
+                        }
+                        todayCardScanShow.setText(""+count[0]);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -359,20 +357,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             if (item.getItemId() == R.id.scanByCamera) {
                 preferences.edit().putString("byRFID", "no").apply();
-            }
-
-            if (item.getItemId() == R.id.item1) {
-                if (jsonObject.length() > 0 && currentLine <= jsonObject.length()) {
-                    if (lat != 0.0 && lng != 0.0) {
-                        Intent intent = new Intent(MapsActivity.this, RevisitActivity.class);
-                        intent.putExtra("line", String.valueOf(currentLine));
-                        intent.putExtra("lat", String.valueOf(lat));
-                        intent.putExtra("lng", String.valueOf(lng));
-                        startActivity(intent);
-                    }
-                } else {
-                    common.showAlertBox("File Not Download Yet OR Line Completed", false, MapsActivity.this);
-                }
             }
 
 //            if (item.getItemId() == R.id.item3) {
@@ -464,42 +448,47 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     isVerified = 3;
                 }
-                Log.d("TAG", "cardScanMethod: check card "+cardNo);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             if (isVerified == 1) {
                 try {
                     JSONArray jsonArray1 = markingDataObject.getJSONArray(markingKey);
-                    if (jsonArray1.get(4).toString().equalsIgnoreCase("no")){
-                        Iterator<String> listKEY = markingDataObject.keys();
-                        boolean isFound =false;
-                        while (listKEY.hasNext()) {
-                            String key = (String) listKEY.next();
-                            try {
-                                JSONArray jsonArray = markingDataObject.getJSONArray(key);
-                                if (jsonArray.get(4).toString().equalsIgnoreCase(preferences.getString("cardNo", ""))){
-                                    isFound = true;
-                                }
-                            }catch (Exception e){}
-                        }
-                        if (isFound){
-                            common.showAlertBox(preferences.getString("sameCardOnTwoMarkerMessage",""), false, this);
-                        }else {
-                            moveNextActivity();
-                        }
+                    preferences.edit().putString("markingRevisit", jsonArray1.get(3).toString()).apply();
+                    if (!jsonArray1.get(5).toString().equalsIgnoreCase("no")){
+                        common.showAlertBox("इस मार्किंग पे पहले ही survey हो चूका है |",false,this);
                     }else {
-                        if (jsonArray1.get(4).toString().equalsIgnoreCase(preferences.getString("cardNo", ""))) {
-                            moveNextActivity();
-                        } else {
-                            closeDialog();
-                            String messageString="";
-                            try {
-                                String[] message = preferences.getString("sameMarkerOnTwoCard","").split("#");
-                                messageString = message[0] + jsonArray1.get(4) + message[1];
-                            } catch (Exception e) {
+                        if (jsonArray1.get(4).toString().equalsIgnoreCase("no")) {
+                            Iterator<String> listKEY = markingDataObject.keys();
+                            boolean isFound = false;
+                            while (listKEY.hasNext()) {
+                                String key = (String) listKEY.next();
+                                try {
+                                    JSONArray jsonArray = markingDataObject.getJSONArray(key);
+                                    if (jsonArray.get(4).toString().equalsIgnoreCase(preferences.getString("cardNo", ""))) {
+                                        isFound = true;
+                                    }
+                                } catch (Exception e) {
+                                }
                             }
-                            common.showAlertBox(messageString, false, this);
+                            if (isFound) {
+                                common.showAlertBox(preferences.getString("sameCardOnTwoMarkerMessage", ""), false, this);
+                            } else {
+                                moveNextActivity(1);
+                            }
+                        } else {
+                            if (jsonArray1.get(4).toString().equalsIgnoreCase(preferences.getString("cardNo", ""))) {
+                                moveNextActivity(1);
+                            } else {
+                                closeDialog();
+                                String messageString = "";
+                                try {
+                                    String[] message = preferences.getString("sameMarkerOnTwoCard", "").split("#");
+                                    messageString = message[0] + jsonArray1.get(4) + message[1];
+                                } catch (Exception e) {
+                                }
+                                common.showAlertBox(messageString, false, this);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -507,7 +496,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else if (isVerified == 2) {
                 common.showAlertBox(cardNo + " यह कार्ड Already Verified है | ", true, MapsActivity.this);
             } else {
-                common.showAlertBox(cardNo + " यह कार्ड डेटाबेस में नहीं  है |", true, MapsActivity.this);
+                try{
+                    JSONArray jsonArray1 = markingDataObject.getJSONArray(markingKey);
+                    if (jsonArray1.get(3).toString().equalsIgnoreCase("no")&&jsonArray1.get(4).toString().equalsIgnoreCase("no")&&jsonArray1.get(5).toString().equalsIgnoreCase("no")) {
+                        moveNextActivity(2);
+                    }else {
+                        if (!jsonArray1.get(4).toString().equalsIgnoreCase("no")){
+                            common.showAlertBox("इस मार्किंग पे पहले ही Survey हो चूका है |",false,this);
+                        }else if (!jsonArray1.get(5).toString().equalsIgnoreCase("no")){
+                            common.showAlertBox("इस मार्किंग पे पहले ही survey हो चूका है |",false,this);
+                        }else {
+                            common.showAlertBox("इस मार्किंग पे पहले ही Revisit हो चूका है |",false,this);
+                        }
+                    }
+                }catch (Exception e){ }
             }
             scanS.getText().clear();
         } catch (NumberFormatException e) {
@@ -516,7 +518,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public void moveNextActivity() {
+    public void moveNextActivity(int i) {
         try {
             if (!(countDownTimerLocation == null)) {
                 countDownTimerLocation.cancel();
@@ -529,8 +531,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (Exception e) {
         }
         common.closeDialog();
-        Intent intent = new Intent(MapsActivity.this, VerifyActivity.class);
-        startActivity(intent);
+        if(i==2){
+            Intent intent = new Intent(MapsActivity.this, FormActivity.class);
+            intent.putExtra("from","map");
+            startActivity(intent);
+        }else {
+            Intent intent = new Intent(MapsActivity.this, VerifyActivity.class);
+            startActivity(intent);
+        }
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -538,71 +546,71 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (jsonObject.length() > 0) {
             try {
                 if (position < (lines.size() - 1)) {
-                    setProgressBar("Please wait...", "", this, this);
-                    new AsyncTask<Void, Void, Boolean>() {
-                        @Override
-                        protected void onPreExecute() {
-                            super.onPreExecute();
-                        }
-
-                        @Override
-                        protected Boolean doInBackground(Void... p) {
-                            return common.network(MapsActivity.this);
-                        }
-
-                        @Override
-                        protected void onPostExecute(Boolean result) {
-                            if (result) {
-                                int count = 0;
-                                Iterator<String> listKEY = markingDataObject.keys();
-                                while (listKEY.hasNext()) {
-                                    String key = (String) listKEY.next();
-                                    try {
-                                        JSONArray jsonArray = markingDataObject.getJSONArray(key);
-                                        if (jsonArray.get(3).toString().equalsIgnoreCase("yes")) {
-                                            count++;
-                                        }
-                                    } catch (Exception e) {
-                                    }
-                                }
-                                if (markingDataObject.length() == count) {
-                                    position = position + 1;
-                                    currentLine = lines.get(position);
-                                    lineNumber.setText(String.valueOf(currentLine));
-                                    lineDraw();
-                                } else {
-                                    databaseReferencePath.child("EntitySurveyData/SurveyLineSkippedData/" + preferences.getString("ward", "") + "/" + currentLine + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            String data = "";
-                                            if (dataSnapshot.getValue() != null) {
-                                                data = dataSnapshot.getValue().toString();
-                                            }
-                                            if (data.equalsIgnoreCase("yes")) {
-                                                position = position + 1;
-                                                currentLine = lines.get(position);
-                                                lineNumber.setText(String.valueOf(currentLine));
-                                                lineDraw();
-                                            } else {
-                                                closeDialog();
-                                                common.showAlertBox(preferences.getString("lineNotCompleteMessage",""), false, MapsActivity.this);
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-                                }
-                            } else {
+//                    setProgressBar("Please wait...", "", this, this);
+//                    new AsyncTask<Void, Void, Boolean>() {
+//                        @Override
+//                        protected void onPreExecute() {
+//                            super.onPreExecute();
+//                        }
+//
+//                        @Override
+//                        protected Boolean doInBackground(Void... p) {
+//                            return common.network(MapsActivity.this);
+//                        }
+//
+//                        @Override
+//                        protected void onPostExecute(Boolean result) {
+//                            if (result) {
+//                                int count = 0;
+//                                Iterator<String> listKEY = markingDataObject.keys();
+//                                while (listKEY.hasNext()) {
+//                                    String key = (String) listKEY.next();
+//                                    try {
+//                                        JSONArray jsonArray = markingDataObject.getJSONArray(key);
+//                                        if (jsonArray.get(3).toString().equalsIgnoreCase("yes")) {
+//                                            count++;
+//                                        }
+//                                    } catch (Exception e) {
+//                                    }
+//                                }
+//                                if (markingDataObject.length() == count) {
+//                                    position = position + 1;
+//                                    currentLine = lines.get(position);
+//                                    lineNumber.setText(String.valueOf(currentLine));
+//                                    lineDraw();
+//                                } else {
+//                                    databaseReferencePath.child("EntitySurveyData/SurveyLineSkippedData/" + preferences.getString("ward", "") + "/" + currentLine + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                                            String data = "";
+//                                            if (dataSnapshot.getValue() != null) {
+//                                                data = dataSnapshot.getValue().toString();
+//                                            }
+//                                            if (data.equalsIgnoreCase("yes")) {
+//                                                position = position + 1;
+//                                                currentLine = lines.get(position);
+//                                                lineNumber.setText(String.valueOf(currentLine));
+//                                                lineDraw();
+//                                            } else {
+//                                                closeDialog();
+//                                                common.showAlertBox(preferences.getString("lineNotCompleteMessage",""), false, MapsActivity.this);
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(DatabaseError databaseError) {
+//
+//                                        }
+//                                    });
+//                                }
+//                            } else {
                                 position = position + 1;
                                 currentLine = lines.get(position);
                                 lineNumber.setText(String.valueOf(currentLine));
                                 lineDraw();
-                            }
-                        }
-                    }.execute();
+//                            }
+//                        }
+//                    }.execute();
                 } else {
                     common.showAlertBox("No Line Found", false, MapsActivity.this);
                 }
@@ -734,13 +742,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     jsonArray.put(String.valueOf(snapshot.child("latLng").getValue()));
                                     jsonArray.put(snapshot.child("image").getValue().toString());
                                     jsonArray.put(snapshot.child("houseType").getValue().toString());
-                                    if (snapshot.hasChild("isSurveyed")) {
-                                        jsonArray.put(snapshot.child("isSurveyed").getValue().toString());
+                                    if (snapshot.hasChild("revisitKey")) {
+                                        jsonArray.put(snapshot.child("revisitKey").getValue().toString());
                                     } else {
                                         jsonArray.put("no");
                                     }
                                     if (snapshot.hasChild("cardNumber")) {
                                         jsonArray.put(snapshot.child("cardNumber").getValue().toString());
+                                    } else {
+                                        jsonArray.put("no");
+                                    }
+                                    if (snapshot.hasChild("rfidNotFoundKey")) {
+                                        jsonArray.put(snapshot.child("rfidNotFoundKey").getValue().toString());
                                     } else {
                                         jsonArray.put("no");
                                     }
@@ -793,7 +806,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         String[] tempStr = String.valueOf(jsonArray.get(0)).split(",");
                         builder.include(new LatLng(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1])));
                         printMarkerWithLine(new LatLng(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1])),
-                                Integer.parseInt(String.valueOf(jsonArray.get(2))), Integer.parseInt(key), jsonArray.get(3).toString());
+                                Integer.parseInt(String.valueOf(jsonArray.get(2))), Integer.parseInt(key), jsonArray.get(3).toString(),jsonArray.get(4).toString(),jsonArray.get(5).toString());
                     } catch (Exception e) {
                     }
                 }
@@ -817,16 +830,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         closeDialog();
     }
 
-    private void printMarkerWithLine(LatLng latLng, int type, Integer tag, String isSurveyed) {
+    private void printMarkerWithLine(LatLng latLng, int type, Integer tag, String revisit,String survey,String rfidNotFound) {
         try {
             Marker marker = hashMapMarker.get(tag);
             marker.remove();
             hashMapMarker.remove(tag);
         } catch (Exception e) {
         }
-        if (isSurveyed.equalsIgnoreCase("yes")) {
-            int height = 60;
+        if (!survey.equalsIgnoreCase("no")) {
+            int height = 50;
             int width = 60;
+            BitmapDrawable bitMapDraw = (BitmapDrawable) MapsActivity.this.getResources().getDrawable(R.drawable.green_marker);
+            Bitmap b = bitMapDraw.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+            Marker markers = mMap.addMarker(new MarkerOptions().position(latLng)
+                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+            markers.setTag(tag);
+            hashMapMarker.put(tag, markers);
+        }else if (!revisit.equalsIgnoreCase("no")){
+            int height = 40;
+            int width = 40;
             BitmapDrawable bitMapDraw = (BitmapDrawable) MapsActivity.this.getResources().getDrawable(R.drawable.pin_e);
             Bitmap b = bitMapDraw.getBitmap();
             Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
@@ -835,7 +859,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
             markers.setTag(tag);
             hashMapMarker.put(tag, markers);
-        } else {
+        }else if (!rfidNotFound.equalsIgnoreCase("no")){
+            int height = 50;
+            int width = 60;
+            BitmapDrawable bitMapDraw = (BitmapDrawable) MapsActivity.this.getResources().getDrawable(R.drawable.green_marker);
+            Bitmap b = bitMapDraw.getBitmap();
+            Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
+
+            Marker markers = mMap.addMarker(new MarkerOptions().position(latLng)
+                    .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+            markers.setTag(tag);
+            hashMapMarker.put(tag, markers);
+        }else {
             if (type == 1 || type == 19) {
                 Marker markers = mMap.addMarker(new MarkerOptions().position(latLng)
                         .icon(common.BitmapFromVector(MapsActivity.this, R.drawable.house)));
@@ -942,20 +977,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    @SuppressLint("MissingPermission")
-    public void sendCurrentLocationData() {
-        String ward = preferences.getString("ward", "");
-        String userId = preferences.getString("userId", "");
-        countDownTimerCurrentLocation = new CountDownTimer(currentLocationCaptureTime, 1000) {
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                databaseReferencePath.child("EntitySurveyData/SurveyorsCurrentLocation/" + ward + "/" + userId).setValue(currentLatLng);
-                sendCurrentLocationData();
-            }
-        }.start();
-    }
+//    @SuppressLint("MissingPermission")
+//    public void sendCurrentLocationData() {
+//        String ward = preferences.getString("ward", "");
+//        String userId = preferences.getString("userId", "");
+//        countDownTimerCurrentLocation = new CountDownTimer(currentLocationCaptureTime, 1000) {
+//            public void onTick(long millisUntilFinished) {
+//            }
+//
+//            public void onFinish() {
+//                databaseReferencePath.child("EntitySurveyData/SurveyorsCurrentLocation/" + ward + "/" + userId).setValue(currentLatLng);
+//                sendCurrentLocationData();
+//            }
+//        }.start();
+//    }
 
     public void checkWhetherLocationSettingsAreSatisfied(int i) {
         LocationRequest mLocationRequest = LocationRequest.create().setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setInterval(1000).setNumUpdates(2);
@@ -998,11 +1033,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     lat = locationResult.getLocations().get(latestLocationIndex).getLatitude();
                     lng = locationResult.getLocations().get(latestLocationIndex).getLongitude();
                     currentLatLng = new LatLng(lat, lng);
-                    if (countDownTimerCurrentLocation == null) {
-                        if (MapsActivity.this != null) {
-                            sendCurrentLocationData();
-                        }
-                    }
+//                    if (countDownTimerCurrentLocation == null) {
+//                        if (MapsActivity.this != null) {
+//                            sendCurrentLocationData();
+//                        }
+//                    }
                     if (countDownTimerLocation == null) {
                         if (isFirstTime) {
                             if (MapsActivity.this != null) {
@@ -1091,8 +1126,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             alertDialog.setView(dialogLayout);
             alertDialog.setCancelable(false);
             ImageView markerImage = dialogLayout.findViewById(R.id.marker_iv);
-            Button closeBtn = dialogLayout.findViewById(R.id.close_view_btn);
+            Button revisitBtn = dialogLayout.findViewById(R.id.revisit_btn);
             EditText scanS = dialogLayout.findViewById(R.id.cardscans);
+            TextView closeBtn = dialogLayout.findViewById(R.id.close_btn);
             TextView noteTv = dialogLayout.findViewById(R.id.noteText);
             Button ocrScanCardBtns = dialogLayout.findViewById(R.id.ocrScanCardBtns);
             scanS.setFocusableInTouchMode(true);
@@ -1103,29 +1139,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 ocrScanCardBtns.setVisibility(View.GONE);
                 scanS.setVisibility(View.VISIBLE);
                 noteTv.setText(preferences.getString("scanByRfidNoteMessage",""));
-
             } else {
                 scanS.setVisibility(View.GONE);
                 ocrScanCardBtns.setVisibility(View.VISIBLE);
                 noteTv.setText(preferences.getString("scanByCameraNoteMessage",""));
             }
+            JSONArray jsonArray1 = new JSONArray();
+            try {
+                jsonArray1 = markingDataObject.getJSONArray(markingKey);
+            } catch (Exception e) {
+            }
+            JSONArray finalJsonArray = jsonArray1;
             ocrScanCardBtns.setOnClickListener(v1 -> {
                 if (customTimerAlertBox != null) {
                     customTimerAlertBox.dismiss();
                 }
-
-                Intent intent = new Intent(MapsActivity.this, ScanCardActivity.class);
-                intent.putExtra("line", currentLine);
-                intent.putExtra("houseType", datum);
-                intent.putExtra("markingKey", markingKey);
-                intent.putExtra("markingData", markingDataObject.toString());
-                try {
-                    JSONArray jsonArray1 = markingDataObject.getJSONArray(markingKey);
-                    intent.putExtra("markingCard", jsonArray1.get(4).toString());
-                } catch (Exception e) {
-                    intent.putExtra("markingCard", "no");
-                }
-                startActivity(intent);
+                try{
+                    if (finalJsonArray.get(5).toString().equalsIgnoreCase("no")) {
+                        Intent intent = new Intent(MapsActivity.this, ScanCardActivity.class);
+                        intent.putExtra("line", currentLine);
+                        intent.putExtra("houseType", datum);
+                        intent.putExtra("markingKey", markingKey);
+                        intent.putExtra("markingData", markingDataObject.toString());
+                        intent.putExtra("markingCard", finalJsonArray.get(4).toString());
+                        intent.putExtra("markingRevisit", finalJsonArray.get(3).toString());
+                        startActivity(intent);
+                    }else {
+                        common.showAlertBox("इस मार्किंग पे पहले ही survey हो चूका है |",false,this);
+                    }
+                }catch (Exception e){}
             });
             scanS.setOnKeyListener((view1, i, keyEvent) -> {
                 if (scanS.getText().length() == 10) {
@@ -1148,6 +1190,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 markerImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 markerImage.setImageBitmap(bitmap);
             }
+
+            revisitBtn.setOnClickListener(view1 -> {
+                if (customTimerAlertBox != null) {
+                    customTimerAlertBox.dismiss();
+                }
+                try {
+                    if (finalJsonArray.get(3).toString().equalsIgnoreCase("no")&&finalJsonArray.get(4).toString().equalsIgnoreCase("no")&&finalJsonArray.get(5).toString().equalsIgnoreCase("no")) {
+                        preferences.edit().putString("markingKey", markingKey).apply();
+                        preferences.edit().putString("houseType", datum).apply();
+                        preferences.edit().putString("lat", String.valueOf(lat)).apply();
+                        preferences.edit().putString("lng", String.valueOf(lng)).apply();
+                        preferences.edit().putString("line", String.valueOf(currentLine)).apply();
+                        Intent intent = new Intent(MapsActivity.this, RevisitActivity.class);
+                        startActivity(intent);
+                    }else {
+                        if (!finalJsonArray.get(4).toString().equalsIgnoreCase("no")){
+                            common.showAlertBox("इस मार्किंग पे पहले ही Survey हो चूका है |",false,this);
+                        }else if (!finalJsonArray.get(5).toString().equalsIgnoreCase("no")){
+                            common.showAlertBox("इस मार्किंग पे पहले ही survey हो चूका है |",false,this);
+                        }else {
+                            common.showAlertBox("इस मार्किंग पे पहले ही Revisit हो चूका है |",false,this);
+                        }
+                    }
+                }catch (Exception e){}
+            });
             closeBtn.setOnClickListener(view1 -> {
                 if (customTimerAlertBox != null) {
                     customTimerAlertBox.dismiss();

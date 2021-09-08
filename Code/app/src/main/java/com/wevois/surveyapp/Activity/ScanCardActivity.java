@@ -65,7 +65,7 @@ public class ScanCardActivity extends AppCompatActivity {
     private final static int REQUEST_CHECK_SETTINGS = 500, requestPermissionID = 1888;
     Button scanningBtn;
     CountDownTimer countDownTimer;
-    String rfID, houseType = "", markingKey = "", markingCard = "",markingData="";
+    String rfID, houseType = "", markingKey = "", markingCard = "",markingData="",markingRevisit="";
 
     CommonFunctions common = new CommonFunctions();
     TextView scanTv, progressPercentage;
@@ -87,10 +87,12 @@ public class ScanCardActivity extends AppCompatActivity {
         databaseReferencePath = common.getDatabaseForApplication(ScanCardActivity.this);
         preferences = getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
         lineNumber = getIntent().getIntExtra("line", 0);
+        Log.d("TAG", "initMethod: check line "+lineNumber);
         houseType = getIntent().getStringExtra("houseType");
         markingKey = getIntent().getStringExtra("markingKey");
         markingCard = getIntent().getStringExtra("markingCard");
         markingData = getIntent().getStringExtra("markingData");
+        markingRevisit = getIntent().getStringExtra("markingRevisit");
         progressBar = findViewById(R.id.progressBars);
         progressPercentage = findViewById(R.id.progressPercentage);
         mCameraView = findViewById(R.id.surfaceView);
@@ -208,7 +210,7 @@ public class ScanCardActivity extends AppCompatActivity {
                                 stringBuilder.append(item.getValue());
                                 stringBuilder.append("\n");
                                 runOnUiThread(() -> scanTv.setText("" + item.getValue()));
-                                if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC")|| item.getValue().contains("SHA")) {
+                                if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC")|| item.getValue().contains("SHAH")) {
                                     runOnUiThread(() -> {
                                         try {
                                             JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
@@ -284,6 +286,7 @@ public class ScanCardActivity extends AppCompatActivity {
                     preferences.edit().putString("cardNoPre", "").apply();
                     preferences.edit().putString("houseType", houseType).apply();
                     preferences.edit().putString("markingKey", markingKey).apply();
+                    preferences.edit().putString("markingRevisit", markingRevisit).apply();
                     JSONObject jsonObject;
                     int isVerified = 1;
                     String cardNo = "";
