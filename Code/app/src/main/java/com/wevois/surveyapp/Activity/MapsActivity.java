@@ -22,6 +22,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -155,38 +156,48 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             JSONArray jsonArray1 = markingDataObject.getJSONArray(marker.getTag().toString());
                             String houseType = jsonArray1.get(2).toString();
                             String image = jsonArray1.get(1).toString();
-                            new AsyncTask<Void, Void, Boolean>() {
-                                @Override
-                                protected void onPreExecute() {
-                                    super.onPreExecute();
-                                }
-
-                                @Override
-                                protected Boolean doInBackground(Void... p) {
-                                    return common.network(MapsActivity.this);
-                                }
-
-                                @Override
-                                protected void onPostExecute(Boolean result) {
-                                    if (result) {
-                                        MapsActivity.this.runOnUiThread(() -> {
-                                            try {
-                                                StorageReference storageReference = FirebaseStorage.getInstance()
-                                                        .getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + common.getDatabaseStorage(MapsActivity.this) + "/MarkingSurveyImages/" + preferences.getString("ward", "") + "/" + currentLine)
-                                                        .child(Objects.requireNonNull(image));
-                                                storageReference.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-                                                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                                    dialogForMarkerImage(bmp, houseType, marker.getTag().toString());
-                                                }).addOnFailureListener(e -> {
-                                                    dialogForMarkerImage(null, houseType, marker.getTag().toString());
-                                                });
-                                            }catch (Exception e){}
-                                        });
-                                    } else {
-                                        dialogForMarkerImage(null, houseType, marker.getTag().toString());
+                            String[] tempStr = String.valueOf(jsonArray1.get(0)).split(",");
+                            float lineDis[] = new float[1];
+                            Location.distanceBetween(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1]), currentLatLng.latitude, currentLatLng.longitude, lineDis);
+                            Log.d("TAG", "onMapReady: check dis "+lineDis[0]+"  "+Double.parseDouble(tempStr[0])+"   "+Double.parseDouble(tempStr[1]));
+                            if (lineDis[0]<=preferences.getInt("minimumDistanceBetweenMarkerAndSurvey",10)) {
+                                new AsyncTask<Void, Void, Boolean>() {
+                                    @Override
+                                    protected void onPreExecute() {
+                                        super.onPreExecute();
                                     }
-                                }
-                            }.execute();
+
+                                    @Override
+                                    protected Boolean doInBackground(Void... p) {
+                                        return common.network(MapsActivity.this);
+                                    }
+
+                                    @Override
+                                    protected void onPostExecute(Boolean result) {
+                                        if (result) {
+                                            MapsActivity.this.runOnUiThread(() -> {
+                                                try {
+                                                    StorageReference storageReference = FirebaseStorage.getInstance()
+                                                            .getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + common.getDatabaseStorage(MapsActivity.this) + "/MarkingSurveyImages/" + preferences.getString("ward", "") + "/" + currentLine)
+                                                            .child(Objects.requireNonNull(image));
+                                                    storageReference.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
+                                                        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                        dialogForMarkerImage(bmp, houseType, marker.getTag().toString());
+                                                    }).addOnFailureListener(e -> {
+                                                        dialogForMarkerImage(null, houseType, marker.getTag().toString());
+                                                    });
+                                                } catch (Exception e) {
+                                                }
+                                            });
+                                        } else {
+                                            dialogForMarkerImage(null, houseType, marker.getTag().toString());
+                                        }
+                                    }
+                                }.execute();
+                            }else {
+                                closeDialog();
+                                common.showAlertBox(preferences.getString("messageMinimumDistanceMarkerAndSurvey",""),false,this);
+                            }
                         } catch (Exception e) {
                         }
                     }

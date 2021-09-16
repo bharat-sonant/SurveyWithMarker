@@ -90,6 +90,11 @@ public class FileDownloadActivity extends AppCompatActivity {
                         if (dataSnapshot.child("Survey").hasChild("cardScanningTime")) {
                             int minCurrentTime = Integer.parseInt(dataSnapshot.child("Survey/cardScanningTime").getValue().toString()) * 1000;
                             preferences.edit().putInt("cardScanningTime", minCurrentTime).apply();
+                        }if (dataSnapshot.child("Survey").hasChild("minimumDistanceBetweenMarkerAndSurvey")) {
+                            int minCurrentTime = Integer.parseInt(dataSnapshot.child("Survey/minimumDistanceBetweenMarkerAndSurvey").getValue().toString());
+                            preferences.edit().putInt("minimumDistanceBetweenMarkerAndSurvey", minCurrentTime).apply();
+                        }if (dataSnapshot.child("Survey").hasChild("messageMinimumDistanceMarkerAndSurvey")) {
+                            preferences.edit().putString("messageMinimumDistanceMarkerAndSurvey", dataSnapshot.child("Survey/messageMinimumDistanceMarkerAndSurvey").getValue().toString()).apply();
                         }
                     }
                 }
@@ -212,6 +217,7 @@ public class FileDownloadActivity extends AppCompatActivity {
                             if (linesArray.contains(snapshot1.getKey())) {
                                 JSONObject markingDataObject = new JSONObject();
                                 for (DataSnapshot dataSnapshot : snapshot1.getChildren()) {
+                                    Log.d("TAG", "onDataChange: check "+snapshot1.getKey()+"   "+dataSnapshot.getKey());
                                     if (dataSnapshot.hasChild("latLng")) {
                                         JSONArray jsonArray = new JSONArray();
                                         jsonArray.put(String.valueOf(dataSnapshot.child("latLng").getValue()));
