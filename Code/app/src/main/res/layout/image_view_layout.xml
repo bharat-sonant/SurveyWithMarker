@@ -38,21 +38,6 @@
             android:gravity="center"
             android:orientation="horizontal"
             android:weightSum="100">
-
-            <Button
-                android:id="@+id/okeyBtn"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="50"
-                android:textColor="#fff"
-                android:background="@drawable/backgroundgreendark"
-                android:text="Upload"
-                android:textSize="10dp" />
-
-            <View
-                android:layout_width="10dp"
-                android:layout_height="match_parent" />
-
             <Button
                 android:id="@+id/close_view_btn"
                 android:layout_width="0dp"
@@ -64,6 +49,20 @@
                 android:background="#f00"
                 android:text="Close"
                 android:textAllCaps="false" />
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+            <Button
+                android:id="@+id/okeyBtn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:textColor="#fff"
+                android:background="#58C558"
+                android:text="OK"
+                android:textSize="10dp" />
+
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

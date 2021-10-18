@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="com.google.android.gms.maps.SupportMapFragment" />
+        <variable
+            name="mappageviewmodel"
+            type="com.wevois.surveyapp.viewmodel.MapPageViewModel" />
+    </data>
+    <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -46,7 +52,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="20"
                 android:gravity="center"
-                android:text="0"
+                android:text="@{mappageviewmodel.totalCard}"
                 android:textColor="#000"
                 android:textSize="20dp"
                 android:textStyle="bold" />
@@ -69,6 +75,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
             android:layout_weight="20"
+            android:onClick="@{()->mappageviewmodel.previousClick()}"
             android:background="@drawable/leftarrowbtn"
             android:padding="5dp" />
 
@@ -82,7 +89,7 @@
             android:layout_weight="20"
             android:background="@drawable/bordergreen"
             android:gravity="center"
-            android:text="1"
+            android:text="@{mappageviewmodel.lineNumber}"
             android:textColor="#000"
             android:textSize="20dp"
             android:textStyle="bold" />
@@ -95,6 +102,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
+            android:onClick="@{()->mappageviewmodel.nextClick()}"
             android:layout_weight="20"
             android:background="@drawable/rightarrowbtn" />
 
@@ -109,6 +117,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="20"
                 android:gravity="center"
+                android:text="@{mappageviewmodel.todayCardScanShow}"
                 android:textColor="#000"
                 android:textSize="20dp"
                 android:textStyle="bold" />
@@ -135,23 +144,22 @@
         android:background="@drawable/border"
         android:padding="5dp">
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <fragment
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".AfterInstallationMap" />
+            />
 
-<!--        <Button-->
-<!--            android:id="@+id/showroute"-->
-<!--            android:layout_width="55dp"-->
-<!--            android:layout_height="55dp"-->
-<!--            android:layout_gravity="bottom"-->
-<!--            android:layout_marginLeft="5dp"-->
-<!--            android:layout_marginBottom="39dp"-->
-<!--            android:background="@drawable/greenpath"-->
-<!--            android:elevation="2dp" />-->
+        <!--        <Button-->
+        <!--            android:id="@+id/showroute"-->
+        <!--            android:layout_width="55dp"-->
+        <!--            android:layout_height="55dp"-->
+        <!--            android:layout_gravity="bottom"-->
+        <!--            android:layout_marginLeft="5dp"-->
+        <!--            android:layout_marginBottom="39dp"-->
+        <!--            android:background="@drawable/greenpath"-->
+        <!--            android:elevation="2dp" />-->
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -166,17 +174,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="55dp"
                 android:padding="10dp"
-                android:text="Offline Data : 0"
+                android:text="@{mappageviewmodel.showOfflineCount}"
                 android:textColor="#000" />
 
             <Button
                 android:id="@+id/dataSync"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:background="@drawable/datasyncgreen"
+                android:onClick="@{()->mappageviewmodel.offlineClick()}"
+                android:background="@{mappageviewmodel.buttonBackground}"
                 android:elevation="2dp" />
         </LinearLayout>
-
     </FrameLayout>
-
 </LinearLayout>
+</layout>

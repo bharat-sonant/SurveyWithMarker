@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="formpageviewmodel"
+            type="com.wevois.surveyapp.viewmodel.FormPageViewModel" />
+    </data>
+<ScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="false">
@@ -34,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/ic_arrow_back_black_24dp"
                 android:textColor="#fff"
+                android:onClick="@{()->formpageviewmodel.onBack()}"
                 android:textSize="22dp" />
         </androidx.appcompat.widget.Toolbar>
 
@@ -47,6 +55,8 @@
             android:background="@drawable/border"
             android:ems="10"
             android:hint="Enter name"
+            android:text="@{formpageviewmodel.userTv}"
+            app:addTextChangedListener="@{formpageviewmodel.userTvWatcher}"
             android:inputType="textCapSentences"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
@@ -74,6 +84,8 @@
                 android:layout_weight="100"
                 android:layout_height="match_parent"
                 android:ems="10"
+                android:text="@{formpageviewmodel.mobileTv}"
+                app:addTextChangedListener="@{formpageviewmodel.mobileTvWatcher}"
                 android:background="@drawable/border"
                 android:hint="Enter Mobile No."
                 android:digits="1234567890,"
@@ -96,9 +108,9 @@
                 android:id="@+id/radio_awasiye"
                 android:layout_width="0dp"
                 android:layout_weight="50"
-                android:checked="true"
+                android:checked="@{formpageviewmodel.isCheckedAwasiye}"
                 android:layout_height="wrap_content"
-                android:onClick="onRadioButtonClicked"
+                android:onClick="@{()->formpageviewmodel.awasiyeButtonClick()}"
                 android:textSize="18dp"
                 android:text="आवासीय" />
 
@@ -107,7 +119,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="50"
                 android:layout_height="wrap_content"
-                android:onClick="onRadioButtonClicked"
+                android:checked="@{formpageviewmodel.isChecked}"
+                android:onClick="@{()->formpageviewmodel.commercialButtonClick()}"
                 android:textSize="18dp"
                 android:text="व्यावसायिक" />
         </RadioGroup>
@@ -137,10 +150,12 @@
             android:background="@drawable/border"
             android:ems="10"
             android:hint="Enter Total Houses"
+            android:text="@{formpageviewmodel.totalHousesTv}"
+            app:addTextChangedListener="@{formpageviewmodel.totalHousesTvWatcher}"
             android:inputType="number"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:visibility="gone"
+            android:visibility="@{formpageviewmodel.isVisible?View.VISIBLE:View.GONE}"
             app:layout_constraintEnd_toEndOf="@+id/spnrHouseType"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/spnrHouseType"
@@ -156,6 +171,8 @@
             android:background="@drawable/border"
             android:ems="10"
             android:hint="Enter Address"
+            android:text="@{formpageviewmodel.addressTv}"
+            app:addTextChangedListener="@{formpageviewmodel.addressTvWatcher}"
             android:inputType="textCapSentences"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
@@ -181,6 +198,7 @@
                 android:id="@+id/button_image"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
+                android:onClick="@{()->formpageviewmodel.saveImage()}"
                 android:background="@drawable/camerabutton"
                 android:textAllCaps="false"/>
             <View
@@ -191,6 +209,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="100"
                 android:layout_height="50dp"
+                android:onClick="@{()->formpageviewmodel.saveData()}"
                 android:background="@drawable/backgroundgreendark"
                 android:text="Save Details"
                 android:textColor="#fff"
@@ -228,31 +247,50 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="10dp"
+                android:onClick="@{()->formpageviewmodel.revisitBtn()}"
                 android:background="@drawable/backgroundgreendark"
+                android:visibility="@{formpageviewmodel.isVisibleBtnRevisit?View.VISIBLE:View.GONE}"
                 android:text="revisit"
                 android:textColor="#fff"
                 android:textSize="17dp"
-                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvRevisitNote" />
 
-            <Button
-                android:id="@+id/btnSaveReason"
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/backgroundgreendark"
-                android:text="SAVE REASON"
-                android:textColor="#fff"
-                android:textSize="17dp"
-                android:visibility="gone"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="28dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/spnrHouseTypeCardRevisit" />
+                app:layout_constraintTop_toBottomOf="@+id/spnrHouseTypeCardRevisit"
+                android:visibility="@{formpageviewmodel.isVisibleBtnRevisitSave?View.VISIBLE:View.GONE}"
+                android:layout_marginRight="10dp"
+                android:orientation="horizontal"
+                android:weightSum="100">
+                <Button
+                    android:id="@+id/button_image_revisit"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:onClick="@{()->formpageviewmodel.saveRevisitImage()}"
+                    android:background="@drawable/camerabutton"
+                    android:textAllCaps="false"/>
+                <View
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent"/>
+                <Button
+                    android:id="@+id/btnSaveReason"
+                    android:layout_width="0dp"
+                    android:layout_weight="100"
+                    android:layout_height="50dp"
+                    android:onClick="@{()->formpageviewmodel.saveRevisitBtn()}"
+                    android:background="@drawable/backgroundgreendark"
+                    android:text="revisit"
+                    android:textColor="#fff"
+                    android:textSize="17dp" />
+            </LinearLayout>
             <EditText
                 android:id="@+id/revisitNameForm"
                 android:layout_width="match_parent"
@@ -260,9 +298,10 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
+                app:addTextChangedListener="@{formpageviewmodel.revisitNameTvWatcher}"
                 android:hint="Enter name"
                 android:paddingLeft="10dp"
-                android:visibility="gone"
+                android:visibility="@{formpageviewmodel.isVisibleRevisitName?View.VISIBLE:View.GONE}"
                 android:background="@drawable/border"
                 app:layout_constraintTop_toBottomOf="@+id/btnRevisit"/>
             <Spinner
@@ -278,7 +317,7 @@
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:spinnerMode="dropdown"
-                android:visibility="gone"
+                android:visibility="@{formpageviewmodel.isVisibleReasonRevisit?View.VISIBLE:View.GONE}"
                 app:layout_constraintEnd_toEndOf="@+id/etMobile"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/etMobile"
@@ -292,7 +331,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 android:gravity="center"
-                android:visibility="gone"
+                android:visibility="@{formpageviewmodel.isVisibleRadioRevisit?View.VISIBLE:View.GONE}"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="@+id/spnrReason"
                 app:layout_constraintStart_toStartOf="@+id/spnrReason"
@@ -302,8 +341,8 @@
                     android:layout_width="0dp"
                     android:layout_weight="50"
                     android:checked="true"
+                    android:onClick="@{()->formpageviewmodel.awasiyeButtonCardRevisitClick()}"
                     android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
                     android:textSize="18dp"
                     android:text="आवासीय" />
 
@@ -312,7 +351,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="50"
                     android:layout_height="wrap_content"
-                    android:onClick="onRadioButtonClicked"
+                    android:onClick="@{()->formpageviewmodel.commercialButtonCardRevisitClick()}"
                     android:textSize="18dp"
                     android:text="व्यावसायिक" />
             </RadioGroup>
@@ -328,7 +367,7 @@
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:spinnerMode="dropdown"
-                android:visibility="gone"
+                android:visibility="@{formpageviewmodel.isVisibleCardRevisit?View.VISIBLE:View.GONE}"
                 app:layout_constraintEnd_toEndOf="@+id/radioGroupCardRevisit"
                 app:layout_constraintStart_toStartOf="@+id/radioGroupCardRevisit"
                 app:layout_constraintTop_toBottomOf="@+id/radioGroupCardRevisit" />
@@ -344,7 +383,7 @@
                 android:gravity="center|left"
                 android:text="NOTE :- अगर किसी भी वजह से सर्वे पूरा नहीं हो पाया है तो निचे दिए हुए 'Revisit House'  बटन पर क्लिक करे "
                 android:textColor="#DF5344"
-                android:visibility="visible"
+                android:visibility="@{formpageviewmodel.isVisibleTvRevisitNote?View.VISIBLE:View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
@@ -352,3 +391,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
+</layout>

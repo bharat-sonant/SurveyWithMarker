@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="revisitpageviewmodel"
+            type="com.wevois.surveyapp.viewmodel.RevisitPageViewModel" />
+    </data>
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -28,6 +34,7 @@
             android:id="@+id/BackBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{()->revisitpageviewmodel.onBackClick()}"
             android:background="@drawable/ic_arrow_back_black_24dp"
             android:textColor="#fff"
             android:textSize="22dp" />
@@ -40,6 +47,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:hint="Enter name"
+        app:addTextChangedListener="@{revisitpageviewmodel.userTvWatcher}"
         android:paddingLeft="10dp"
         android:background="@drawable/border"/>
     <Spinner
@@ -72,10 +80,10 @@
             android:id="@+id/radio_awasiyeRevisit"
             android:layout_width="0dp"
             android:layout_weight="50"
-            android:checked="true"
+            android:checked="@{revisitpageviewmodel.isCheckedAwasiye}"
             android:layout_height="wrap_content"
-            android:onClick="onRadioButtonClicked"
             android:textSize="18dp"
+            android:onClick="@{()->revisitpageviewmodel.awasiyeButtonClick()}"
             android:text="आवासीय" />
 
         <RadioButton
@@ -83,7 +91,8 @@
             android:layout_width="0dp"
             android:layout_weight="50"
             android:layout_height="wrap_content"
-            android:onClick="onRadioButtonClicked"
+            android:checked="@{revisitpageviewmodel.isChecked}"
+            android:onClick="@{()->revisitpageviewmodel.commercialButtonClick()}"
             android:textSize="18dp"
             android:text="व्यावसायिक" />
     </RadioGroup>
@@ -119,6 +128,7 @@
             android:id="@+id/button_image"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:onClick="@{()->revisitpageviewmodel.saveImage()}"
             android:background="@drawable/camerabutton"
             android:textAllCaps="false"/>
         <View
@@ -131,8 +141,10 @@
             android:layout_height="50dp"
             android:background="@drawable/backgroundgreendark"
             android:text="revisit"
+            android:onClick="@{()->revisitpageviewmodel.saveRevisitData()}"
             android:textColor="#fff"
             android:textSize="17dp" />
     </LinearLayout>
 
 </LinearLayout>
+</layout>

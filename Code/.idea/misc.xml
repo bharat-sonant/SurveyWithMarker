@@ -4,13 +4,27 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/drawable/ic_confirmation_cross_box.xml" value="0.18518518518518517" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_file_download.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_file_download_page.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_form.xml" value="0.16394927536231885" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_form_page.xml" value="0.13333333333333333" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_home.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_login.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_login_page.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_map_page.xml" value="0.22" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_maps.xml" value="0.1621376811594203" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_offline.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_offline_page.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_register.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_register_page.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_revisit.xml" value="0.1598731884057971" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_revisit_page.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_scan_card.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_scan_card_page.xml" value="0.165625" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_select.xml" value="0.151268115942029" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_select_city.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_verify.xml" value="0.1796875" />
+        <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/activity_verify_page.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/custom_camera_alertbox.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/image_view_layout.xml" value="0.1796875" />
         <entry key="..\:/Projects/SurveyWithMarker/Code/app/src/main/res/layout/markers_image_view_layout.xml" value="0.15806159420289856" />
