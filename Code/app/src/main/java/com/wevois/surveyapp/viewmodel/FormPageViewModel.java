@@ -6,6 +6,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -45,6 +47,7 @@ import com.google.firebase.storage.UploadTask;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.repository.Repository;
+import com.wevois.surveyapp.views.FileDownloadPageActivity;
 import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.VerifyPageActivity;
 
@@ -470,44 +473,31 @@ public class FormPageViewModel extends ViewModel {
     public void saveData() {
         if (isMoved) {
             isMoved = false;
-            new AsyncTask<Void, Void, Boolean>() {
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                    common.setProgressBar("Please Wait...", activity, activity);
+            common.setProgressBar("Please Wait...", activity, activity);
+            new Repository().checkNetWork(activity).observeForever(response -> {
+                int i;
+                if (response) {
+                    i = 1;
+                } else {
+                    i = 2;
                 }
-
-                @Override
-                protected Boolean doInBackground(Void... p) {
-                    return common.network(activity);
-                }
-
-                @Override
-                protected void onPostExecute(Boolean result) {
-                    int i = 0;
-                    if (result) {
-                        i = 1;
-                    } else {
-                        i = 2;
-                    }
-                    if (validateSurveyForm()) {
-                        if (from.equalsIgnoreCase("map")) {
-                            if (i == 1) {
-                                saveRfidImageData();
-                            } else {
-                                isMoved = true;
-                                common.showAlertBox("No internet connection.", false, activity);
-                            }
+                if (validateSurveyForm()) {
+                    if (from.equalsIgnoreCase("map")) {
+                        if (i == 1) {
+                            saveRfidImageData();
                         } else {
-                            String mobile = mobileTv.get();
-                            String rfID = preferences.getString("rfid", "");
-                            saveOfflineData(mobile, rfID, i);
+                            isMoved = true;
+                            common.showAlertBox("No internet connection.", false, activity);
                         }
                     } else {
-                        isMoved = true;
+                        String mobile = mobileTv.get();
+                        String rfID = preferences.getString("rfid", "");
+                        saveOfflineData(mobile, rfID, i);
                     }
+                } else {
+                    isMoved = true;
                 }
-            }.execute();
+            });
         }
     }
 

@@ -1181,4 +1181,26 @@ public class Repository {
         } catch (Exception e) {
         }
     }
+
+    @SuppressLint("StaticFieldLeak")
+    public LiveData<Boolean> checkNetWork(Activity activity) {
+        MutableLiveData<Boolean> response = new MutableLiveData<>();
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Boolean doInBackground(Void... p) {
+                return new CommonFunctions().network(activity);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean result) {
+                response.setValue(result);
+            }
+        }.execute();
+        return response;
+    }
 }

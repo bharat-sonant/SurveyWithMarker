@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -61,7 +62,7 @@ public class LoginPageViewModel extends ViewModel {
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity,PERMISSIONS, LOCATION_REQUEST);
+            ActivityCompat.requestPermissions(activity, PERMISSIONS, LOCATION_REQUEST);
             return;
         }
         common.setProgressBar("Check internet connection...", activity, activity);
@@ -70,86 +71,73 @@ public class LoginPageViewModel extends ViewModel {
 
     @SuppressLint("StaticFieldLeak")
     private void checkVersion() {
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
-
-            @Override
-            protected Boolean doInBackground(Void... p) {
-                return common.network(activity);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                if (result) {
-                    if (checkNetBy) {
-                        checkNetBy = false;
-                        common.setProgressBar("Check application version.", activity, activity);
-                        new Repository().checkVersion(activity).observeForever(dataSnapshot -> {
-                            common.closeDialog();
-                            try {
-                                String localVersion = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName;
-                                if (dataSnapshot.getValue() != null) {
-                                    String version = dataSnapshot.getValue().toString();
-                                    if (!version.equals(localVersion)) {
-                                        showVersionAlertBox();
-                                    } else {
-                                        isVisible.set(true);
-                                    }
-                                } else {
-                                    showVersionAlertBox();
-                                }
-                            } catch (PackageManager.NameNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } else {
-                        common.setProgressBar("Check user id.", activity, activity);
-                        new Repository().loginUserId(activity, userTv.get()).observeForever(dataSnapshot -> {
+        new Repository().checkNetWork(activity).observeForever(response -> {
+            if (response) {
+                if (checkNetBy) {
+                    checkNetBy = false;
+                    common.setProgressBar("Check application version.", activity, activity);
+                    new Repository().checkVersion(activity).observeForever(dataSnapshot -> {
+                        common.closeDialog();
+                        try {
+                            String localVersion = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName;
                             if (dataSnapshot.getValue() != null) {
-                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                    if (snapshot.child("status").getValue().equals("2")) {
-                                        if (snapshot.hasChild("surveyor-type")) {
-                                            if (snapshot.child("surveyor-type").getValue().equals("Surveyor")) {
-                                                if (isMoved) {
-                                                    isMoved = false;
-                                                    String isOfflineAllowed = "no";
-                                                    SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-                                                    preferences.edit().putString("mno", snapshot.child("mobile").getValue().toString()).apply();
-                                                    preferences.edit().putString("userId", snapshot.getKey()).apply();
-                                                    if (snapshot.hasChild("isOfflineAllowed")) {
-                                                        isOfflineAllowed = snapshot.child("isOfflineAllowed").getValue().toString();
-                                                    }
-                                                    preferences.edit().putString("isOfflineAllowed", isOfflineAllowed).apply();
-                                                    common.closeDialog();
-                                                    activity.startActivity(new Intent(activity, FileDownloadPageActivity.class));
-                                                    activity.finish();
+                                String version = dataSnapshot.getValue().toString();
+                                if (!version.equals(localVersion)) {
+                                    showVersionAlertBox();
+                                } else {
+                                    isVisible.set(true);
+                                }
+                            } else {
+                                showVersionAlertBox();
+                            }
+                        } catch (PackageManager.NameNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                } else {
+                    common.setProgressBar("Check user id.", activity, activity);
+                    new Repository().loginUserId(activity, userTv.get()).observeForever(dataSnapshot -> {
+                        if (dataSnapshot.getValue() != null) {
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                if (snapshot.child("status").getValue().equals("2")) {
+                                    if (snapshot.hasChild("surveyor-type")) {
+                                        if (snapshot.child("surveyor-type").getValue().equals("Surveyor")) {
+                                            if (isMoved) {
+                                                isMoved = false;
+                                                String isOfflineAllowed = "no";
+                                                SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
+                                                preferences.edit().putString("mno", snapshot.child("mobile").getValue().toString()).apply();
+                                                preferences.edit().putString("userId", snapshot.getKey()).apply();
+                                                if (snapshot.hasChild("isOfflineAllowed")) {
+                                                    isOfflineAllowed = snapshot.child("isOfflineAllowed").getValue().toString();
                                                 }
-                                            } else {
-                                                common.showAlertBox("Invalid User!", false, activity);
+                                                preferences.edit().putString("isOfflineAllowed", isOfflineAllowed).apply();
+                                                common.closeDialog();
+                                                activity.startActivity(new Intent(activity, FileDownloadPageActivity.class));
+                                                activity.finish();
                                             }
                                         } else {
                                             common.showAlertBox("Invalid User!", false, activity);
                                         }
-                                    } else if (snapshot.child("status").getValue().equals("3")) {
-                                        common.showAlertBox("आपकी यूजर आईडी इनएक्टिव कर दि गयी है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
                                     } else {
-                                        common.showAlertBox("आप अभी एक्टिव यूजर नहीं है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
+                                        common.showAlertBox("Invalid User!", false, activity);
                                     }
+                                } else if (snapshot.child("status").getValue().equals("3")) {
+                                    common.showAlertBox("आपकी यूजर आईडी इनएक्टिव कर दि गयी है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
+                                } else {
+                                    common.showAlertBox("आप अभी एक्टिव यूजर नहीं है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
                                 }
-                            } else {
-                                common.showAlertBox("Invalid User!", false, activity);
                             }
-                        });
-                    }
-                } else {
-                    handler = new Handler();
-                    handler.postDelayed(runnable, 50);
+                        } else {
+                            common.showAlertBox("Invalid User!", false, activity);
+                        }
+                    });
                 }
+            } else {
+                handler = new Handler();
+                handler.postDelayed(runnable, 50);
             }
-        }.execute();
+        });
     }
 
     private void showVersionAlertBox() {

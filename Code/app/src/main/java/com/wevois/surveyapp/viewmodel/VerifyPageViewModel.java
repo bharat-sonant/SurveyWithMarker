@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Handler;
 
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
@@ -13,6 +15,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.database.DataSnapshot;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.repository.Repository;
+import com.wevois.surveyapp.views.FileDownloadPageActivity;
 import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.VerifyPageActivity;
 public class VerifyPageViewModel extends ViewModel {
@@ -37,28 +40,15 @@ public class VerifyPageViewModel extends ViewModel {
 
     @SuppressLint("StaticFieldLeak")
     public void onClick(){
-        new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                common.setProgressBar("Please Wait...", activity, activity);
+        common.setProgressBar("Please Wait...", activity, activity);
+        new Repository().checkNetWork(activity).observeForever(response -> {
+            if (response) {
+                continueToSurveyReengusForm();
+            } else {
+                common.closeDialog();
+                moveToSurveyForm();
             }
-
-            @Override
-            protected Boolean doInBackground(Void... p) {
-                return common.network(activity);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean result) {
-                if (result) {
-                    continueToSurveyReengusForm();
-                } else {
-                    common.closeDialog();
-                    moveToSurveyForm();
-                }
-            }
-        }.execute();
+        });
     }
 
     public void onBack(){
