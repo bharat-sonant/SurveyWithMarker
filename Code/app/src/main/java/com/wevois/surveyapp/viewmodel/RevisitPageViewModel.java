@@ -53,7 +53,7 @@ public class RevisitPageViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     Spinner spinnerRevisit, spinnerHouseType;
     Bitmap identityBitmap = null;
     List<String> houseTypeList = new ArrayList<>();

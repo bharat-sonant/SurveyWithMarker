@@ -34,7 +34,7 @@ import java.util.Iterator;
 public class OfflinePageViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     JSONObject wardJsonObject = new JSONObject(),jsonObject = new JSONObject(),cardJsonObject = new JSONObject();
     boolean isDelete = false;
     ArrayList<String> cardNumbers = new ArrayList<>();

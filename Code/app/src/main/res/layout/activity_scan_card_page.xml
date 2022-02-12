@@ -8,152 +8,152 @@
             name="scancardpageviewmodel"
             type="com.wevois.surveyapp.viewmodel.ScanCardPageViewModel" />
     </data>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="100">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="?attr/colorPrimary"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/AppTheme.PopupOverlay">
-
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Scan Card"
-            android:textColor="#fff"
-            android:textSize="22dp" />
-        <TextView
-            android:id="@+id/BackBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_arrow_back_black_24dp"
-            android:textColor="#fff"
-            android:onClick="@{()->scancardpageviewmodel.onBack()}"
-            android:textSize="22dp" />
-    </androidx.appcompat.widget.Toolbar>
-
     <LinearLayout
-        android:id="@+id/scanLinearLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="100"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:weightSum="100"
-        android:visibility="@{scancardpageviewmodel.isScanVisible?View.VISIBLE:View.GONE}"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="100">
 
-        <LinearLayout
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_gravity="center"
-            android:weightSum="100"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:visibility="visible"
-                android:background="@drawable/sikarcardimage"
-                android:scaleType="centerCrop"
-                android:layout_weight="60" />
-            <SurfaceView
-                android:id="@+id/surfaceView"
-                android:layout_width="0dp"
-                android:visibility="@{scancardpageviewmodel.isSurfaceVisible?View.VISIBLE:View.GONE}"
-                android:layout_height="match_parent"
-                android:layout_weight="40" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:weightSum="100"
+            android:layout_height="55dp"
+            android:background="?attr/colorPrimary"
             android:gravity="center"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/border"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/scanTv"
-                android:layout_width="0dp"
-                android:layout_weight="90"
-                android:paddingLeft="10dp"
-                app:text="@{scancardpageviewmodel.scanTv}"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
-        <ProgressBar
-            android:id="@+id/progressBars"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center|top"
-            android:indeterminate="false"
-            android:max="100"
-            android:maxHeight="10dip"
-            android:minHeight="10dip"
-            android:layout_marginTop="50dp"
-            android:progress="@{scancardpageviewmodel.progressBar}"
-            android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/border"
-            android:padding="1dp"
-            android:progressDrawable="@drawable/progress_limit"
-            android:secondaryProgress="100" />
-        <TextView
-            android:id="@+id/progressPercentage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:text="@{scancardpageviewmodel.percentageShow}"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_marginTop="5dp"/>
-    </LinearLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
 
-    <LinearLayout
-        android:id="@+id/cardPhotoLayout"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="100"
-        android:visibility="@{scancardpageviewmodel.isCardVisible?View.VISIBLE:View.GONE}"
-        android:layout_gravity="center"
-        android:gravity="center|top"
-        android:padding="5dp"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            android:weightSum="100">
-            <Button
-                android:id="@+id/scanningButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:onClick="@{()->scancardpageviewmodel.onClick()}"
-                android:background="@drawable/scan_image" />
             <TextView
-                android:layout_width="0dp"
-                android:layout_weight="100"
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="दोबारा Scan के लिए बटन दबाये।"
                 android:layout_gravity="center"
-                android:textColor="#000"
-                android:layout_marginLeft="10dp"
-                android:textSize="18dp"/>
-        </LinearLayout>
-    </LinearLayout>
+                android:text="Scan Card"
+                android:textColor="#fff"
+                android:textSize="22dp" />
+            <TextView
+                android:id="@+id/BackBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_arrow_back_black_24dp"
+                android:textColor="#fff"
+                android:onClick="@{()->scancardpageviewmodel.onBack()}"
+                android:textSize="22dp" />
+        </androidx.appcompat.widget.Toolbar>
 
-</LinearLayout>
+        <LinearLayout
+            android:id="@+id/scanLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="100"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:weightSum="100"
+            android:visibility="@{scancardpageviewmodel.isScanVisible?View.VISIBLE:View.GONE}"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_gravity="center"
+                android:weightSum="100"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    android:background="@drawable/sikarcardimage"
+                    android:scaleType="centerCrop"
+                    android:layout_weight="60" />
+                <SurfaceView
+                    android:id="@+id/surfaceView"
+                    android:layout_width="0dp"
+                    android:visibility="@{scancardpageviewmodel.isSurfaceVisible?View.VISIBLE:View.GONE}"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:weightSum="100"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/border"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/scanTv"
+                    android:layout_width="0dp"
+                    android:layout_weight="90"
+                    android:paddingLeft="10dp"
+                    app:text="@{scancardpageviewmodel.scanTv}"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+            <ProgressBar
+                android:id="@+id/progressBars"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|top"
+                android:indeterminate="false"
+                android:max="100"
+                android:maxHeight="10dip"
+                android:minHeight="10dip"
+                android:layout_marginTop="50dp"
+                android:progress="@{scancardpageviewmodel.progressBar}"
+                android:layout_marginRight="5dp"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/border"
+                android:padding="1dp"
+                android:progressDrawable="@drawable/progress_limit"
+                android:secondaryProgress="100" />
+            <TextView
+                android:id="@+id/progressPercentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:text="@{scancardpageviewmodel.percentageShow}"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginTop="5dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardPhotoLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="100"
+            android:visibility="@{scancardpageviewmodel.isCardVisible?View.VISIBLE:View.GONE}"
+            android:layout_gravity="center"
+            android:gravity="center|top"
+            android:padding="5dp"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:weightSum="100">
+                <Button
+                    android:id="@+id/scanningButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:onClick="@{()->scancardpageviewmodel.onClick()}"
+                    android:background="@drawable/scan_image" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="100"
+                    android:layout_height="wrap_content"
+                    android:text="दोबारा Scan के लिए बटन दबाये।"
+                    android:layout_gravity="center"
+                    android:textColor="#000"
+                    android:layout_marginLeft="10dp"
+                    android:textSize="18dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 </layout>

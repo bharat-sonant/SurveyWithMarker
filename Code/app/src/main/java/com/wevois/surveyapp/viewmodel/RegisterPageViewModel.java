@@ -37,7 +37,7 @@ import java.util.List;
 public class RegisterPageViewModel extends ViewModel {
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     Activity activity;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     public final ObservableField<String> userNameTv = new ObservableField<>("");
     public final ObservableField<String> userMobileTv = new ObservableField<>("");
     public ObservableField<Boolean> isVisible = new ObservableField<>(false);

@@ -68,13 +68,13 @@ import java.util.List;
 public class FormPageViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     List<String> houseTypeList = new ArrayList<>(), houseTypeListRevisit = new ArrayList<>(), revisitTypeList = new ArrayList<>();
     JSONArray jsonArrayHouseType = new JSONArray(), jsonArrayHouseTypeRevisit = new JSONArray();
     JSONObject dataObject = new JSONObject(), jsonObject = new JSONObject(), jsonObjectWard = new JSONObject();
     Spinner spinnerHouseType, spinnerRevisitReason, spinnerRevisitHouseType;
-    AlertDialog customTimerAlertBox, customTimerAlertBoxForImage;
+    AlertDialog customTimerAlertBox, customTimerAlertBoxForImage,saveAlertBox;
     public final ObservableField<String> userTv = new ObservableField<>("");
     public final ObservableField<String> mobileTv = new ObservableField<>("");
     public final ObservableField<String> totalHousesTv = new ObservableField<>("");
@@ -93,7 +93,7 @@ public class FormPageViewModel extends ViewModel {
 
     ArrayList<String> oldMobiles = new ArrayList<>(), newMobiles = new ArrayList<>();
     String mobileNumber = "", hT = "", markingKey = "", currentDate, countCheck = "2",
-            currentCardNumber, storagePath = "", from = "";
+            currentCardNumber, from = "";
     boolean isMoved = true, isValid = true, isDelete = false;
     private Camera mCamera;
     private static final int FOCUS_AREA_SIZE = 300;
@@ -512,7 +512,7 @@ public class FormPageViewModel extends ViewModel {
             @Override
             protected Boolean doInBackground(Void... p) {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + storagePath + "/SurveyRfidNotFoundCardImage/" + preferences.getString("ward", "") + "/" + preferences.getString("line", ""));
+                StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/SurveyRfidNotFoundCardImage");
                 StorageReference mountainImagesRef = storageRef.child(preferences.getString("rfid", "") + ".jpg");
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
@@ -905,6 +905,12 @@ public class FormPageViewModel extends ViewModel {
 
     public void showAlertBox(String message, boolean surveyCompleted, String from, String value) {
         common.closeDialog();
+        try {
+            if (saveAlertBox != null) {
+                saveAlertBox.dismiss();
+            }
+        } catch (Exception e) {
+        }
         AlertDialog.Builder alertAssignment = new AlertDialog.Builder(activity);
         alertAssignment.setMessage(message);
         alertAssignment.setCancelable(false);
@@ -920,9 +926,9 @@ public class FormPageViewModel extends ViewModel {
                 }
             }
         });
-        AlertDialog alertDAssignment = alertAssignment.create();
+        saveAlertBox = alertAssignment.create();
         if (!activity.isFinishing()) {
-            alertDAssignment.show();
+            saveAlertBox.show();
         }
     }
 

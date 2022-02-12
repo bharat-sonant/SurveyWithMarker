@@ -17,7 +17,7 @@ import com.wevois.surveyapp.views.MapPageActivity;
 public class FileDownloadViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     boolean isMoved = true,isFirstTime = true;
     public ObservableField<Boolean> isVisible = new ObservableField<>(false);
 

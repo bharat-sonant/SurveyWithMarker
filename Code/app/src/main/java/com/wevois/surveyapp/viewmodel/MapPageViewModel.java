@@ -104,7 +104,7 @@ public class MapPageViewModel extends ViewModel {
     CountDownTimer countDownTimerLocation;
     int currentLine = 1, position = 0;
     LatLng latLng, currentLatLng;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     JSONObject jsonObjectLines;
     JSONArray jsonArray;
     String rfID, houseT = "", markingKey = "";

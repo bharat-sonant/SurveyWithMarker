@@ -20,7 +20,7 @@ import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.VerifyPageActivity;
 public class VerifyPageViewModel extends ViewModel {
     Activity activity;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     SharedPreferences preferences;
     int currentLine = 1;
     String rfidNumber, houseType = "", markingKey = "";
@@ -33,9 +33,7 @@ public class VerifyPageViewModel extends ViewModel {
         houseType = preferences.getString("houseType","");
         markingKey = preferences.getString("markingKey","");
         rfidNumber = preferences.getString("rfid", "");
-        if (common.getDatabaseStorage(activity).equals("Sikar") || common.getDatabaseStorage(activity).equals("Jaipur") || common.getDatabaseStorage(activity).equals("Test")|| common.getDatabaseStorage(activity).equals("Shahpura")) {
-            cardNumber.set(preferences.getString("cardNo", ""));
-        }
+        cardNumber.set(preferences.getString("cardNo", ""));
     }
 
     @SuppressLint("StaticFieldLeak")

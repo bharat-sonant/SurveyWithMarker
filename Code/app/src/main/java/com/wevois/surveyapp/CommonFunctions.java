@@ -66,6 +66,17 @@ public class CommonFunctions {
     HttpURLConnection urlc = null;
     Marker markerManOne, markerManTwo, markerManThree, markerManFour, markerManFive, markerManSix, markerManStop;
 
+    private static CommonFunctions single_instance = null;
+
+    private CommonFunctions() { }
+
+    public static CommonFunctions getInstance() {
+        if (single_instance == null) {
+            single_instance = new CommonFunctions();
+        }
+        return single_instance;
+    }
+
     public boolean internetIsConnected() {
         try
         {

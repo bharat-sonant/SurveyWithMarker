@@ -18,6 +18,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityLoginPageBinding;
 import com.wevois.surveyapp.viewmodel.LoginPageViewModel;
@@ -50,12 +53,29 @@ public class LoginPageActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        try {
-            SharedPreferences dbPathSP = getSharedPreferences("FirebasePath", MODE_PRIVATE);
-            dbPathSP.edit().putString("login", "no").apply();
-            startActivity(new Intent(this, SelectCityActivity.class));
-            finish();
-        } catch (Exception ignored) {
+        SharedPreferences preferences = getSharedPreferences("surveyApp", MODE_PRIVATE);
+        if (preferences.getString("userId","").equalsIgnoreCase("")){
+            try {
+                SharedPreferences dbPathSP = getSharedPreferences("FirebasePath", MODE_PRIVATE);
+                dbPathSP.edit().putString("login", "no").apply();
+                preferences.edit().putString("userId", "").apply();
+                startActivity(new Intent(LoginPageActivity.this, SelectCityActivity.class));
+                finish();
+            } catch (Exception ignored) {
+            }
+        }else {
+            CommonFunctions.getInstance().setProgressBar("Check user id.", this, this);
+            CommonFunctions.getInstance().getDatabaseForApplication(this).child("Surveyors/" + preferences.getString("userId", "") + "/isLogin").setValue("no").addOnCompleteListener(task -> {
+                CommonFunctions.getInstance().closeDialog();
+                try {
+                    SharedPreferences dbPathSP = getSharedPreferences("FirebasePath", MODE_PRIVATE);
+                    dbPathSP.edit().putString("login", "no").apply();
+                    preferences.edit().putString("userId", "").apply();
+                    startActivity(new Intent(LoginPageActivity.this, SelectCityActivity.class));
+                    finish();
+                } catch (Exception ignored) {
+                }
+            });
         }
         return super.onOptionsItemSelected(item);
     }

@@ -62,7 +62,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> checkVersion(Activity activity) {
         MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("Settings/LatestVersions/survey").addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Settings/LatestVersions/survey").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 responce.setValue(dataSnapshot);
@@ -78,7 +78,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> loginUserId(Activity activity, String user_id) {
         MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("Surveyors").orderByChild("pin").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("pin").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 responce.setValue(dataSnapshot);
@@ -94,7 +94,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> checkMobile(Activity activity, String user_id) {
         MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 responce.setValue(dataSnapshot);
@@ -111,7 +111,7 @@ public class Repository {
     public LiveData<String> uploadRegisterImage(Activity activity, Bitmap identityBitmap, String userMobile) {
         MutableLiveData<String> responce = new MutableLiveData<>();
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/SurveyorsIdentity");
+        StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/SurveyorsIdentity");
         StorageReference mountainImagesRef = storageRef.child(userMobile + ".jpg");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
@@ -127,22 +127,17 @@ public class Repository {
 
     public LiveData<String> sendRegisterData(Activity activity, String mobileNumber, String userName) {
         MutableLiveData<String> responce = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(mobileNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(mobileNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    new CommonFunctions().showAlertBox("This number not exists in our system.", true, activity);
+                    CommonFunctions.getInstance().showAlertBox("This number not exists in our system.", true, activity);
                 } else {
-                    final DatabaseReference deviceDBRef = new CommonFunctions().getDatabaseForApplication(activity).child("Surveyors");
+                    final DatabaseReference deviceDBRef = CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors");
                     deviceDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            String namePrefix = "";
-                            if (new CommonFunctions().getDatabaseStorage(activity).equals("Reengus")) {
-                                namePrefix = "REE";
-                            } else {
-                                namePrefix = "SUR";
-                            }
+                            String namePrefix = "SUR";
                             int lastNumber = 0;
                             if (dataSnapshot.child("LastSorveyourPIN").getValue() != null && !dataSnapshot.child("LastSorveyourPIN").getValue().toString().equals("")) {
                                 lastNumber = Integer.parseInt(dataSnapshot.child("LastSorveyourPIN").getValue().toString());
@@ -188,7 +183,7 @@ public class Repository {
     public LiveData<String> fileDownload(Activity activity) {
         MutableLiveData<String> responce = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        new CommonFunctions().getDatabaseForApplication(activity).child("SurveyorsCuurentAssignment").addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("SurveyorsCuurentAssignment").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.getValue() != null) {
@@ -205,7 +200,7 @@ public class Repository {
                                 for (int i = 0; i < linesData.length; i++) {
                                     int finalI = i;
                                     activity.runOnUiThread(() -> {
-                                        new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + linesData[finalI].trim()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + linesData[finalI].trim()).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                                 if (snapshot.getValue() != null) {
@@ -253,7 +248,7 @@ public class Repository {
                                     });
                                 }
                             }
-                            FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
+                            FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
                                 File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" + preferences.getString("ward", "") + ".json");
                                 long fileCreationTime = storageMetadata.getCreationTimeMillis();
                                 long fileDownloadTime = preferences.getLong("fileDownloadTime", 0);
@@ -263,7 +258,7 @@ public class Repository {
                                         root.mkdirs();
                                     }
                                     file.delete();
-                                    FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getFile(file).addOnSuccessListener(taskSnapshot -> {
+                                    FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getFile(file).addOnSuccessListener(taskSnapshot -> {
                                         try {
                                             String str = "";
                                             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
@@ -316,11 +311,11 @@ public class Repository {
 
     public void storageFileDownload(Activity activity) {
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Defaults/FinalHousesType.json").getMetadata().addOnSuccessListener(storageMetadata -> {
+        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Defaults/FinalHousesType.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("housesTypeDownloadTime", 0);
             if (fileDownloadTime != fileCreationTime || preferences.getString("housesTypeList", "").equalsIgnoreCase("")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Defaults/FinalHousesType.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
+                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Defaults/FinalHousesType.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     try {
                         JSONArray jsonArray = new JSONArray(s);
@@ -365,11 +360,11 @@ public class Repository {
             }
         }).addOnFailureListener(e -> {
         });
-        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Defaults/CardRevisitReasons.json").getMetadata().addOnSuccessListener(storageMetadata -> {
+        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Defaults/CardRevisitReasons.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("CardRevisitReasonsDownloadTime", 0);
             if (fileDownloadTime != fileCreationTime || preferences.getString("revisitReasonList", "").equalsIgnoreCase("")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Defaults/CardRevisitReasons.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
+                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Defaults/CardRevisitReasons.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     try {
                         JSONArray jsonArray = new JSONArray(s);
@@ -390,11 +385,11 @@ public class Repository {
             }
         }).addOnFailureListener(e -> {
         });
-        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Settings/Survey.json").getMetadata().addOnSuccessListener(storageMetadata -> {
+        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Settings/Survey.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("SurveyDownloadTime", 0);
             if (fileDownloadTime != fileCreationTime || preferences.getString("revisitReasonList", "").equalsIgnoreCase("")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/Settings/Survey.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
+                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/Settings/Survey.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     try {
                         JSONObject jsonObject = new JSONObject(s);
@@ -436,11 +431,11 @@ public class Repository {
             }
         }).addOnFailureListener(e -> {
         });
-        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getMetadata().addOnSuccessListener(storageMetadata -> {
+        FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("CardScanDataDownloadTime", 0);
             if (fileDownloadTime != fileCreationTime || preferences.getString("CardScanData", "").equalsIgnoreCase("")) {
-                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getBytes(100000000).addOnSuccessListener(taskSnapshot -> {
+                FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getBytes(100000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     JSONObject jsonCard = new JSONObject();
                     try {
@@ -465,7 +460,7 @@ public class Repository {
     public LiveData<String> DownloadTodayCardScan(Activity activity) {
         MutableLiveData<String> responce = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyHouseCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyHouseCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 final int[] count = {0};
@@ -474,7 +469,7 @@ public class Repository {
                 if ((dataSnapshot.getValue() != null) && dataSnapshot.hasChild(date)) {
                     count[0] = Integer.parseInt(dataSnapshot.child(date).getValue().toString());
                 }
-                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if ((dataSnapshot.getValue() != null) && dataSnapshot.hasChild(date)) {
@@ -500,7 +495,7 @@ public class Repository {
     public LiveData<DataSnapshot> DownloadCurrentLine(Activity activity) {
         MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData").child("CurrentLine").child(preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData").child("CurrentLine").child(preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 responce.setValue(dataSnapshot);
@@ -517,8 +512,8 @@ public class Repository {
     public LiveData<DataSnapshot> MarkingLine(Activity activity, String currentLine) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData").child("CurrentLine").child(preferences.getString("ward", "")).child(preferences.getString("userId", "")).setValue("" + currentLine);
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + currentLine).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData").child("CurrentLine").child(preferences.getString("ward", "")).child(preferences.getString("userId", "")).setValue("" + currentLine);
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + currentLine).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 response.setValue(dataSnapshot);
@@ -534,7 +529,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> CheckWardMapping(Activity activity, String alreadyMappedCardNumber) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("CardWardMapping/" + alreadyMappedCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("CardWardMapping/" + alreadyMappedCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 response.setValue(dataSnapshot);
@@ -549,7 +544,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> CheckHousesDetails(Activity activity, String assignedWard, String assignedLine, String cardNumber) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("Houses/" + assignedWard + "/" + assignedLine).orderByChild("cardNo").equalTo(cardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Houses/" + assignedWard + "/" + assignedLine).orderByChild("cardNo").equalTo(cardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 response.setValue(dataSnapshot);
@@ -564,12 +559,12 @@ public class Repository {
 
     public LiveData<DataSnapshot> checkSurveyDetailsIfAlreadyExists(Activity activity, String currentCardNumber) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("CardWardMapping/" + currentCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("CardWardMapping/" + currentCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
                     if (dataSnapshot.hasChild("ward") && dataSnapshot.hasChild("line")) {
-                        new CommonFunctions().getDatabaseForApplication(activity).child("Houses/" + dataSnapshot.child("ward").getValue().toString() + "/" + dataSnapshot.child("line").getValue().toString()).orderByChild("cardNo").equalTo(currentCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Houses/" + dataSnapshot.child("ward").getValue().toString() + "/" + dataSnapshot.child("line").getValue().toString()).orderByChild("cardNo").equalTo(currentCardNumber).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot1) {
                                 response.setValue(dataSnapshot1);
@@ -596,7 +591,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> checkRfidAlreadyExists(Activity activity, String ward, String line, String rfid) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
-        Query query = new CommonFunctions().getDatabaseForApplication(activity).child("Houses/" + ward + "/" + line).orderByChild("rfid").equalTo(rfid);
+        Query query = CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Houses/" + ward + "/" + line).orderByChild("rfid").equalTo(rfid);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -612,7 +607,7 @@ public class Repository {
 
     public LiveData<DataSnapshot> checkMarkedHouses(Activity activity, String ward, String line, String markingKey) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/" + markingKey + "/cardNumber").addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + ward + "/" + line + "/" + markingKey + "/cardNumber").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 response.setValue(dataSnapshot);
@@ -629,7 +624,7 @@ public class Repository {
     public LiveData<DataSnapshot> saveRfidNotFoundData(Activity activity, HashMap<String, Object> housesMap) {
         MutableLiveData<DataSnapshot> response = new MutableLiveData<>(null);
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", MODE_PRIVATE);
-        new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + "lineRfidNotFoundCount").addListenerForSingleValueEvent(new ValueEventListener() {
+        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + "lineRfidNotFoundCount").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 int count = 1;
@@ -637,18 +632,18 @@ public class Repository {
                     count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                 }
                 try {
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RFIDNotFoundSurvey/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("rfid", "")).setValue(housesMap);
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRfidNotFoundCount").setValue("" + count);
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingKey", "") + "/rfidNotFoundKey").setValue(preferences.getString("rfid", ""));
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RFIDNotFoundSurvey/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("rfid", "")).setValue(housesMap);
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRfidNotFoundCount").setValue("" + count);
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingKey", "") + "/rfidNotFoundKey").setValue(preferences.getString("rfid", ""));
 
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).addListenerForSingleValueEvent(new ValueEventListener() {
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.getValue() != null) {
                                 String count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
-                                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).setValue(count);
+                                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).setValue(count);
                             } else {
-                                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).setValue("1");
+                                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRfidNotFoundCount/" + preferences.getString("ward", "")).setValue("1");
                             }
                         }
 
@@ -657,19 +652,14 @@ public class Repository {
                         }
                     });
                     SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "") + "/" + dateFormat1.format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "") + "/" + dateFormat1.format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String count = "1";
                             if (dataSnapshot.getValue() != null) {
                                 count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
                             }
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "") + "/" + dateFormat1.format(new Date())).setValue(count).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    response.setValue(dataSnapshot);
-                                }
-                            });
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRfidNotFoundCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "") + "/" + dateFormat1.format(new Date())).setValue(count).addOnCompleteListener(task -> response.setValue(dataSnapshot));
                         }
 
                         @Override
@@ -699,7 +689,7 @@ public class Repository {
         preferences = activity.getSharedPreferences("surveyApp", MODE_PRIVATE);
         if (countCheck.equals("2")) {
             activity.runOnUiThread(() -> {
-                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyHouseCount/" + wardNo + "/" + userId + "/" + currentDate).runTransaction(new Transaction.Handler() {
+                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyHouseCount/" + wardNo + "/" + userId + "/" + currentDate).runTransaction(new Transaction.Handler() {
                     @NonNull
                     @Override
                     public Transaction.Result doTransaction(@NonNull MutableData currentData) {
@@ -721,7 +711,7 @@ public class Repository {
                 removeLocalData("DailyHouseCount");
             });
             activity.runOnUiThread(() -> {
-                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalHouseCount/" + wardNo).runTransaction(new Transaction.Handler() {
+                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalHouseCount/" + wardNo).runTransaction(new Transaction.Handler() {
                     @NonNull
                     @Override
                     public Transaction.Result doTransaction(@NonNull MutableData currentData) {
@@ -743,7 +733,7 @@ public class Repository {
                 removeLocalData("TotalHouseCount");
             });
             activity.runOnUiThread(() -> {
-                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyDateWise/" + userId).addListenerForSingleValueEvent(new ValueEventListener() {
+                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyDateWise/" + userId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot1) {
                         int dateCount = 1, totalCount = 1;
@@ -758,7 +748,7 @@ public class Repository {
                         HashMap<String, Object> surveyDateWiseMap = new HashMap<>();
                         surveyDateWiseMap.put("totalCount", totalCount);
                         surveyDateWiseMap.put(currentDate, dateCount);
-                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyDateWise/" + userId).updateChildren(surveyDateWiseMap).addOnCompleteListener(task1111 -> {
+                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyDateWise/" + userId).updateChildren(surveyDateWiseMap).addOnCompleteListener(task1111 -> {
                             if (task1111.isSuccessful()) {
                                 response.setValue(checkAllDataSend("DateWise"));
                             }
@@ -823,7 +813,7 @@ public class Repository {
                                 @Override
                                 protected Boolean doInBackground(Void... p) {
                                     FirebaseStorage storage = FirebaseStorage.getInstance();
-                                    StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/SurveyCardImage/" + wardNo + "/" + line);
+                                    StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/SurveyCardImage");
                                     StorageReference mountainImagesRef = storageRef.child(cardNumber + ".jpg");
                                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                     result.compress(Bitmap.CompressFormat.JPEG, 80, baos);
@@ -859,7 +849,7 @@ public class Repository {
                     @Override
                     protected Boolean doInBackground(Void... p) {
                         FirebaseStorage storage = FirebaseStorage.getInstance();
-                        StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/SurveyCardImage/" + wardNo + "/" + line);
+                        StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/SurveyCardImage");
                         StorageReference mountainImagesRef = storageRef.child(currentCardNumber + ".jpg");
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
@@ -886,7 +876,7 @@ public class Repository {
             }
         });
         activity.runOnUiThread(() -> {
-            new CommonFunctions().getDatabaseForApplication(activity).child("Houses/" + wardNo + "/" + line + "/" + currentCardNumber).updateChildren(housesMap).addOnCompleteListener(task -> {
+            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Houses/" + wardNo + "/" + line + "/" + currentCardNumber).updateChildren(housesMap).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     removeLocalData("Houses");
                     response.setValue(checkAllDataSend("Houses"));
@@ -895,14 +885,14 @@ public class Repository {
         });
         activity.runOnUiThread(() -> {
             for (int i = 0; i < newMobiles.size(); i++) {
-                DatabaseReference houseWardMapPath = new CommonFunctions().getDatabaseForApplication(activity).child("HouseWardMapping/" + newMobiles.get(i));
+                DatabaseReference houseWardMapPath = CommonFunctions.getInstance().getDatabaseForApplication(activity).child("HouseWardMapping/" + newMobiles.get(i));
                 houseWardMapPath.child("line").setValue(line);
                 houseWardMapPath.child("ward").setValue(wardNo);
             }
             HashMap<String, Object> houseWardMapping = new HashMap<>();
             houseWardMapping.put("line", line);
             houseWardMapping.put("ward", wardNo);
-            new CommonFunctions().getDatabaseForApplication(activity).child("CardWardMapping/" + currentCardNumber).updateChildren(houseWardMapping).addOnCompleteListener(task1 -> {
+            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("CardWardMapping/" + currentCardNumber).updateChildren(houseWardMapping).addOnCompleteListener(task1 -> {
                 if (task1.isSuccessful()) {
                     removeLocalData("CardWardMapping");
                     response.setValue(checkAllDataSend("cardWard"));
@@ -910,7 +900,7 @@ public class Repository {
             });
         });
         activity.runOnUiThread(() -> {
-            new CommonFunctions().getDatabaseForApplication(activity).child("CardScanData/" + rfid).child("cardInstalled").setValue("yes").addOnCompleteListener(task11 -> {
+            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("CardScanData/" + rfid).child("cardInstalled").setValue("yes").addOnCompleteListener(task11 -> {
                 if (task11.isSuccessful()) {
                     removeLocalData("CardScanData");
                     response.setValue(checkAllDataSend("cardScan"));
@@ -918,7 +908,7 @@ public class Repository {
             });
         });
         activity.runOnUiThread(() -> {
-            new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/surveyedCount").addListenerForSingleValueEvent(new ValueEventListener() {
+            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/surveyedCount").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     int count = 1;
@@ -926,25 +916,25 @@ public class Repository {
                         count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                     }
                     if (countCheck.equals("2")) {
-                        new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/surveyedCount").setValue("" + count);
+                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/surveyedCount").setValue("" + count);
                     }
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/" + markingKey + "/cardNumber").setValue(currentCardNumber).addOnCompleteListener(task111 -> {
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + wardNo + "/" + line + "/" + markingKey + "/cardNumber").setValue(currentCardNumber).addOnCompleteListener(task111 -> {
                         if (task111.isSuccessful()) {
                             if (!markingRevisit.equalsIgnoreCase("no")) {
-                                new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitRequest/" + wardNo + "/" + line + "/" + markingRevisit).addListenerForSingleValueEvent(new ValueEventListener() {
+                                CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitRequest/" + wardNo + "/" + line + "/" + markingRevisit).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot1) {
                                         if (dataSnapshot1.getValue() != null) {
-                                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                                     int revistCount = 1;
                                                     if (dataSnapshot.getValue() != null) {
                                                         revistCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                                                     }
-                                                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/" + markingRevisit).setValue(dataSnapshot1.getValue());
-                                                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/lineRevisitCount").setValue(revistCount);
-                                                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitRequest/" + wardNo + "/" + line + "/" + markingRevisit).removeValue();
+                                                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/" + markingRevisit).setValue(dataSnapshot1.getValue());
+                                                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/" + line + "/lineRevisitCount").setValue(revistCount);
+                                                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitRequest/" + wardNo + "/" + line + "/" + markingRevisit).removeValue();
                                                 }
 
                                                 @Override
@@ -952,14 +942,14 @@ public class Repository {
 
                                                 }
                                             });
-                                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/totalRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/totalRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                                     int totalCount = 1;
                                                     if (dataSnapshot.getValue() != null) {
                                                         totalCount = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                                                     }
-                                                    new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/totalRevisitCount").setValue(totalCount);
+                                                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/RevisitHistory/" + wardNo + "/totalRevisitCount").setValue(totalCount);
                                                 }
 
                                                 @Override
@@ -992,11 +982,11 @@ public class Repository {
             });
         });
         activity.runOnUiThread(() -> {
-            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyStartDate/" + wardNo + "/" + userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyStartDate/" + wardNo + "/" + userId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue() == null) {
-                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyStartDate/" + wardNo + "/" + userId).setValue(currentDate).addOnCompleteListener(task -> {
+                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/SurveyStartDate/" + wardNo + "/" + userId).setValue(currentDate).addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 removeLocalData("SurveyStartDate");
                                 response.setValue(checkAllDataSend("startDate"));
@@ -1029,7 +1019,7 @@ public class Repository {
             @Override
             protected Boolean doInBackground(Void... p) {
                 FirebaseStorage storage = FirebaseStorage.getInstance();
-                StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + new CommonFunctions().getDatabaseStorage(activity) + "/RevisitCardImage/" + preferences.getString("ward", "") + "/" + preferences.getString("line", ""));
+                StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/RevisitCardImage");
                 StorageReference mountainImagesRef = storageRef.child(cardKey + ".jpg");
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
@@ -1038,28 +1028,28 @@ public class Repository {
                 uploadTask.addOnFailureListener(exception -> {
                     response.setValue("fail");
                 }).addOnSuccessListener(taskSnapshot -> {
-                    new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + "lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
+                    CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + "lineRevisitCount").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             int count = 1;
                             if (dataSnapshot.getValue() != null) {
                                 count = Integer.parseInt(dataSnapshot.getValue().toString()) + 1;
                             }
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingKey", "") + "/revisitKey").setValue(cardKey);
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData").child("RevisitRequest").child(preferences.getString("ward", "")).child(preferences.getString("line", "")).child(cardKey).setValue(hashMapData);
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/lineRevisitCount").setValue("" + count);
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + preferences.getString("line", "") + "/" + preferences.getString("markingKey", "") + "/revisitKey").setValue(cardKey);
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData").child("RevisitRequest").child(preferences.getString("ward", "")).child(preferences.getString("line", "")).child(cardKey).setValue(hashMapData);
 
                             String ward = preferences.getString("ward", "");
                             String userId = preferences.getString("userId", "");
                             SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).addListenerForSingleValueEvent(new ValueEventListener() {
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue() != null) {
                                         String count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
-                                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).setValue(count);
+                                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).setValue(count);
                                     } else {
-                                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).setValue("1");
+                                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/TotalRevisitRequest/" + ward).setValue("1");
                                     }
                                 }
 
@@ -1067,14 +1057,14 @@ public class Repository {
                                 public void onCancelled(DatabaseError databaseError) {
                                 }
                             });
-                            new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
+                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.getValue() != null) {
                                         String count = String.valueOf(Integer.parseInt(dataSnapshot.getValue().toString()) + 1);
-                                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).setValue(count);
+                                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).setValue(count);
                                     } else {
-                                        new CommonFunctions().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).setValue("1");
+                                        CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyRevisitRequestCount/" + ward + "/" + userId + "/" + dateFormat1.format(new Date())).setValue("1");
                                     }
                                 }
 
@@ -1193,7 +1183,7 @@ public class Repository {
 
             @Override
             protected Boolean doInBackground(Void... p) {
-                return new CommonFunctions().network(activity);
+                return CommonFunctions.getInstance().network(activity);
             }
 
             @Override

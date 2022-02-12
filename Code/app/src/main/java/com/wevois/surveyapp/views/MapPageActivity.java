@@ -74,7 +74,7 @@ public class MapPageActivity extends AppCompatActivity {
             }
 
             if (item.getItemId() == R.id.item4) {
-                new CommonFunctions().showAlertBox(getPackageManager().getPackageInfo(getPackageName(), 0).versionName, false, MapPageActivity.this);
+                CommonFunctions.getInstance().showAlertBox(getPackageManager().getPackageInfo(getPackageName(), 0).versionName, false, MapPageActivity.this);
             }
         } catch (Exception ignored) {
         }

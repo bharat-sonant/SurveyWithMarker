@@ -1,5 +1,7 @@
 package com.wevois.surveyapp.viewmodel;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -21,6 +23,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.repository.Repository;
@@ -32,7 +36,8 @@ public class LoginPageViewModel extends ViewModel {
     private final static int LOCATION_REQUEST = 500;
     Activity activity;
     Handler handler;
-    CommonFunctions common = new CommonFunctions();
+    SharedPreferences preferences;
+    CommonFunctions common = CommonFunctions.getInstance();
     Boolean isMoved = true, isFirstTime = true, checkNetBy = true;
     public final ObservableField<String> userTv = new ObservableField<>("");
     public ObservableField<Boolean> isVisible = new ObservableField<>(false);
@@ -49,6 +54,7 @@ public class LoginPageViewModel extends ViewModel {
     public void init(LoginPageActivity selectCityActivity) {
         activity = selectCityActivity;
         common.getKml(activity);
+        preferences = activity.getSharedPreferences("surveyApp", MODE_PRIVATE);
         if (isFirstTime) {
             isFirstTime = false;
             allowPermissions();
@@ -85,7 +91,11 @@ public class LoginPageViewModel extends ViewModel {
                                 if (!version.equals(localVersion)) {
                                     showVersionAlertBox();
                                 } else {
-                                    isVisible.set(true);
+                                    if (preferences.getString("userId","").equalsIgnoreCase("")) {
+                                        isVisible.set(true);
+                                    }else {
+                                        callLoginCheck("SUR"+preferences.getString("userId",""),true);
+                                    }
                                 }
                             } else {
                                 showVersionAlertBox();
@@ -96,46 +106,85 @@ public class LoginPageViewModel extends ViewModel {
                     });
                 } else {
                     common.setProgressBar("Check user id.", activity, activity);
-                    new Repository().loginUserId(activity, userTv.get()).observeForever(dataSnapshot -> {
-                        if (dataSnapshot.getValue() != null) {
-                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                if (snapshot.child("status").getValue().equals("2")) {
-                                    if (snapshot.hasChild("surveyor-type")) {
-                                        if (snapshot.child("surveyor-type").getValue().equals("Surveyor")) {
-                                            if (isMoved) {
-                                                isMoved = false;
-                                                String isOfflineAllowed = "no";
-                                                SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-                                                preferences.edit().putString("mno", snapshot.child("mobile").getValue().toString()).apply();
-                                                preferences.edit().putString("userId", snapshot.getKey()).apply();
-                                                if (snapshot.hasChild("isOfflineAllowed")) {
-                                                    isOfflineAllowed = snapshot.child("isOfflineAllowed").getValue().toString();
-                                                }
-                                                preferences.edit().putString("isOfflineAllowed", isOfflineAllowed).apply();
-                                                common.closeDialog();
-                                                activity.startActivity(new Intent(activity, FileDownloadPageActivity.class));
-                                                activity.finish();
-                                            }
-                                        } else {
-                                            common.showAlertBox("Invalid User!", false, activity);
-                                        }
-                                    } else {
-                                        common.showAlertBox("Invalid User!", false, activity);
-                                    }
-                                } else if (snapshot.child("status").getValue().equals("3")) {
-                                    common.showAlertBox("आपकी यूजर आईडी इनएक्टिव कर दि गयी है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
-                                } else {
-                                    common.showAlertBox("आप अभी एक्टिव यूजर नहीं है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
-                                }
-                            }
-                        } else {
-                            common.showAlertBox("Invalid User!", false, activity);
-                        }
-                    });
+                    callLoginCheck(userTv.get(),false);
                 }
             } else {
                 handler = new Handler();
                 handler.postDelayed(runnable, 50);
+            }
+        });
+    }
+
+    private void callLoginCheck(String s,boolean isLogin) {
+        Log.d("TAG", "callLoginCheck: check B "+preferences.getString("userId","")+"   "+isLogin);
+        new Repository().loginUserId(activity, s).observeForever(dataSnapshot -> {
+            if (dataSnapshot.getValue() != null) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if (snapshot.child("status").getValue().equals("2")) {
+                        if (snapshot.hasChild("surveyor-type")) {
+                            if (snapshot.child("surveyor-type").getValue().equals("Surveyor")) {
+                                if (isLogin){
+                                    if (isMoved) {
+                                        isMoved = false;
+                                        String isOfflineAllowed = "no";
+                                        SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
+                                        preferences.edit().putString("mno", snapshot.child("mobile").getValue().toString()).apply();
+                                        preferences.edit().putString("userId", snapshot.getKey()).apply();
+                                        if (snapshot.hasChild("isOfflineAllowed")) {
+                                            isOfflineAllowed = snapshot.child("isOfflineAllowed").getValue().toString();
+                                        }
+                                        preferences.edit().putString("isOfflineAllowed", isOfflineAllowed).apply();
+                                        common.closeDialog();
+                                        activity.startActivity(new Intent(activity, FileDownloadPageActivity.class));
+                                        activity.finish();
+                                    }
+                                }else {
+                                    boolean isAlreadyLogin = false;
+                                    if (snapshot.hasChild("isLogin")){
+                                        if (snapshot.child("isLogin").getValue().toString().equalsIgnoreCase("yes")){
+                                            isAlreadyLogin = true;
+                                        }
+                                    }
+                                    if (!isAlreadyLogin) {
+                                        if (isMoved) {
+                                            isMoved = false;
+                                            CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors/"+snapshot.getKey()+"/isLogin").setValue("yes").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    String isOfflineAllowed = "no";
+                                                    SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
+                                                    preferences.edit().putString("mno", snapshot.child("mobile").getValue().toString()).apply();
+                                                    preferences.edit().putString("userId", snapshot.getKey()).apply();
+                                                    if (snapshot.hasChild("isOfflineAllowed")) {
+                                                        isOfflineAllowed = snapshot.child("isOfflineAllowed").getValue().toString();
+                                                    }
+                                                    preferences.edit().putString("isOfflineAllowed", isOfflineAllowed).apply();
+                                                    common.closeDialog();
+                                                    activity.startActivity(new Intent(activity, FileDownloadPageActivity.class));
+                                                    activity.finish();
+                                                }
+                                            });
+                                        }
+                                    }else {
+                                        common.showAlertBox("Someone already logged in!\nPlease connect with technical team.", false, activity);
+                                    }
+                                }
+                            } else {
+                                Log.d("TAG", "callLoginCheck: check "+preferences.getString("userId",""));
+                                common.showAlertBox("Invalid User!", false, activity);
+                            }
+                        } else {
+                            Log.d("TAG", "callLoginCheck: check A "+preferences.getString("userId",""));
+                            common.showAlertBox("Invalid User!", false, activity);
+                        }
+                    } else if (snapshot.child("status").getValue().equals("3")) {
+                        common.showAlertBox("आपकी यूजर आईडी इनएक्टिव कर दि गयी है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
+                    } else {
+                        common.showAlertBox("आप अभी एक्टिव यूजर नहीं है कृपया सर्वे मैनेजर से संपर्क करे", false, activity);
+                    }
+                }
+            } else {
+                common.showAlertBox("Invalid User!", false, activity);
             }
         });
     }

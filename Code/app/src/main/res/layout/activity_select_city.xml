@@ -1,111 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="android.view.View" />
         <variable
             name="selectviewmodel"
             type="com.wevois.surveyapp.viewmodel.SelectCityViewModel" />
     </data>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SelectActivity"
-    android:orientation="vertical"
-    android:weightSum="200">
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="49.5"
-        android:background="@drawable/sikarimage">
-        <Button
-            android:id="@+id/sikar"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/cityname"
-            android:text="SIKAR"
-            android:onClick="@{()->selectviewmodel.SikarCity()}"
-            android:textColor="#fff"
-            android:layout_gravity="right|bottom"
-            android:textSize="20dp"></Button>
-    </FrameLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#277013"
-        ></View>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="49.5"
-        android:background="@drawable/reengusimage">
-        <Button
-            android:id="@+id/reengus"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="10dp"
-            android:text="Reengus"
-            android:onClick="@{()->selectviewmodel.ReengusCity()}"
-            android:textColor="#fff"
-            android:textSize="20dp"
-            android:layout_gravity="bottom|right"
-            android:background="@drawable/cityname"
-            >
-        </Button>
-    </FrameLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#277013"/>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="49.5"
-        android:background="@drawable/jaipur">
-        <Button
-            android:id="@+id/jaipur"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/cityname"
-            android:text="Jaipur"
-            android:onClick="@{()->selectviewmodel.JaipurCity()}"
-            android:textColor="#fff"
-            android:layout_gravity="right|bottom"
-            android:textSize="20dp"/>
-    </FrameLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#277013"/>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="49.5"
-        android:background="@drawable/jaipur">
-        <Button
-            android:id="@+id/shahpura"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/cityname"
-            android:text="Shahpura"
-            android:onClick="@{()->selectviewmodel.ShahpuraCity()}"
-            android:textColor="#fff"
-            android:layout_gravity="right|bottom"
-            android:textSize="20dp"/>
-        <TextView
-            android:id="@+id/versionName"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="150">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:onLongClick="@{(view) -> selectviewmodel.onLongClickOnHeading(view)}"
-            android:layout_gravity="bottom"
-            android:text="version 1.0.1.1"></TextView>
-    </FrameLayout>
-</LinearLayout>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <TextView
+                android:id="@+id/selectCity"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:text="SELECT CITY"
+                android:onLongClick="@{(view) -> selectviewmodel.onLongClickOnHeading(view)}"
+                android:textColor="#000"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/cityImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="25dp"
+            android:orientation="horizontal"
+            android:src="@drawable/ic_city_icon" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/cityName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:adapter="@{selectviewmodel.cityRecyclerViewAdapter}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
 </layout>

@@ -45,7 +45,7 @@ public class ScanCardPageViewModel extends ViewModel {
     CameraSource mCameraSource;
     SharedPreferences preferences;
     CountDownTimer countDownTimer;
-    CommonFunctions common = new CommonFunctions();
+    CommonFunctions common = CommonFunctions.getInstance();
     public ObservableField<Boolean> isScanVisible = new ObservableField<>(true);
     public ObservableField<Boolean> isSurfaceVisible = new ObservableField<>(true);
     public ObservableField<Boolean> isCardVisible = new ObservableField<>(false);
@@ -168,7 +168,7 @@ public class ScanCardPageViewModel extends ViewModel {
                             stringBuilder.append(item.getValue());
                             stringBuilder.append("\n");
                             scanTv.set("" + item.getValue());
-                            if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")) {
+                            if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
                                 try {
                                     JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
                                     if (serialNoDataJsonObject.has(item.getValue()) && isCardMatched) {
