@@ -25,6 +25,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,7 +103,7 @@ public class MapPageViewModel extends ViewModel {
     private LocationCallback locationCallback;
     double n, m, lat, lng;
     CountDownTimer countDownTimerLocation;
-    int currentLine = 1, position = 0;
+    int currentLine = 1, position = 0,endLineNo=1;
     LatLng latLng, currentLatLng;
     CommonFunctions common = CommonFunctions.getInstance();
     JSONObject jsonObjectLines;
@@ -430,7 +431,7 @@ public class MapPageViewModel extends ViewModel {
     @SuppressLint("StaticFieldLeak")
     public void nextClick() {
         common.setProgressBar("Please wait...", activity, activity);
-        if (jsonObjectLines.length() > 0) {
+        if (endLineNo > 0) {
             try {
                 if (position < (lines.size() - 1)) {
                     new Repository().checkNetWork(activity).observeForever(response -> {
@@ -470,7 +471,7 @@ public class MapPageViewModel extends ViewModel {
     @SuppressLint("StaticFieldLeak")
     public void previousClick() {
         common.setProgressBar("Please wait...", activity, activity);
-        if (jsonObjectLines.length() > 0) {
+        if (endLineNo > 0) {
             try {
                 if (position > 0) {
                     new Repository().checkNetWork(activity).observeForever(response -> {
@@ -503,7 +504,9 @@ public class MapPageViewModel extends ViewModel {
     @SuppressLint("StaticFieldLeak")
     public void lineData() {
         try {
-            File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" + preferences.getString("ward", "") + ".json");
+            Log.d("TAG", "lineDraw: check "+CommonFunctions.getInstance().getDatabaseStorage(activity)+"   "+preferences.getString("ward", "")+"   "+jsonObjectLines);
+            File file = new File(Environment.getExternalStorageDirectory(), "WardJson/"+
+                    CommonFunctions.getInstance().getDatabaseStorage(activity)+"/"+preferences.getString("ward", "")+"/"+preferences.getString("commonReferenceDate","") + ".json");
             BufferedReader br = new BufferedReader(new FileReader(file));
             StringBuilder result = new StringBuilder();
             String str;
@@ -511,6 +514,9 @@ public class MapPageViewModel extends ViewModel {
                 result.append(str);
             }
             jsonObjectLines = new JSONObject(String.valueOf(result));
+            if (jsonObjectLines.has("totalLines")){
+                endLineNo = Integer.parseInt(jsonObjectLines.get("totalLines").toString());
+            }
         } catch (Exception ignored) {
         }
     }
@@ -535,6 +541,7 @@ public class MapPageViewModel extends ViewModel {
                     jsonArray = jsonObjectLines.getJSONObject(String.valueOf(j)).getJSONArray("points");
                 }catch (Exception e){
                 }
+                Log.d("TAG", "lineDraw: check "+jsonArray+"   "+j+"   "+jsonObjectLines);
                 ArrayList<LatLng> commonDirectionPositionList = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     n = jsonArray.getJSONArray(i).getDouble(0);

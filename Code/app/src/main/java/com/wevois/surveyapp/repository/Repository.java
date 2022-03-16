@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -180,6 +182,7 @@ public class Repository {
         return responce;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     public LiveData<String> fileDownload(Activity activity) {
         MutableLiveData<String> responce = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
@@ -248,47 +251,26 @@ public class Repository {
                                     });
                                 }
                             }
-                            FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
-                                File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" + preferences.getString("ward", "") + ".json");
-                                long fileCreationTime = storageMetadata.getCreationTimeMillis();
-                                long fileDownloadTime = preferences.getLong("fileDownloadTime", 0);
-                                if ((fileDownloadTime != fileCreationTime) || (!file.exists())) {
-                                    File root = new File(Environment.getExternalStorageDirectory(), "WardJson");
-                                    if (!root.exists()) {
-                                        root.mkdirs();
-                                    }
-                                    file.delete();
-                                    FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardJson/" + preferences.getString("ward", "") + ".json").getFile(file).addOnSuccessListener(taskSnapshot -> {
-                                        try {
-                                            String str = "";
-                                            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-                                            StringBuilder result = new StringBuilder();
 
-                                            while ((str = reader.readLine()) != null) {
-                                                result.append(str);
-                                            }
-                                            File roots = new File(Environment.getExternalStorageDirectory(), "WardJson");
-                                            if (!roots.exists()) {
-                                                roots.mkdirs();
-                                            }
-                                            File gpxfile = new File(roots, preferences.getString("ward", "") + ".json");
-                                            FileWriter writer = new FileWriter(gpxfile, true);
-                                            writer.append(result.toString());
-                                            writer.flush();
-                                            writer.close();
-                                            responce.setValue("success");
-                                        } catch (IOException e) {
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+                            storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + preferences.getString("ward", "") + "/mapUpdateHistoryJson.json").getMetadata().addOnSuccessListener(storageMetadata -> {
+                                long fileCreationTime = storageMetadata.getCreationTimeMillis();
+                                long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + "" + preferences.getString("ward", "") + "mapUpdateHistoryJsonDownloadTime", 0);
+                                Log.d("TAG", "getStatusData: check A " + fileCreationTime + "  " + fileDownloadTime);
+                                if (fileDownloadTime != fileCreationTime) {
+                                    storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + preferences.getString("ward", "") + "/mapUpdateHistoryJson.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
+                                        try {
+                                            String str = new String(taskSnapshot, StandardCharsets.UTF_8);
+                                            preferences.edit().putString(CommonFunctions.getInstance().getDatabaseStorage(activity) + preferences.getString("ward", "") + "mapUpdateHistoryJson", str).apply();
+                                            preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + "" + preferences.getString("ward", "") + "mapUpdateHistoryJsonDownloadTime", fileCreationTime).apply();
+                                            responce.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
+                                        } catch (Exception e) {
                                             e.printStackTrace();
-                                            responce.setValue(e.toString());
                                         }
-                                        preferences.edit().putLong("fileDownloadTime", fileCreationTime).apply();
-                                    }).addOnFailureListener(exception -> {
-                                        responce.setValue("File not exist.");
                                     });
                                 } else {
-                                    responce.setValue("success");
+                                    responce.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
                                 }
-                            }).addOnFailureListener(e -> {
                             });
                         } else {
                             responce.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
@@ -308,6 +290,95 @@ public class Repository {
         });
         return responce;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private LiveData<String> checkDate(String wardNo, Activity activity, SharedPreferences preferences) {
+        MutableLiveData<String> responce = new MutableLiveData<>();
+        Log.d("TAG", "getStatusData: check B ");
+        try {
+            JSONArray jsonArray = new JSONArray(preferences.getString(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + "mapUpdateHistoryJson", ""));
+            for (int i = jsonArray.length() - 1; i >= 0; i--) {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                try {
+                    Date date1 = format.parse(format.format(new Date()));
+                    Date date2 = format.parse(jsonArray.getString(i));
+                    if (date1.after(date2)) {
+                        preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
+                        Log.d("TAG", "getStatusData: check B1 " + preferences.getString("commonReferenceDate", ""));
+                        responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
+                        break;
+                    } else if (date1.equals(date2)) {
+                        preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
+                        Log.d("TAG", "getStatusData: check B2 " + preferences.getString("commonReferenceDate", ""));
+                        responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
+                        break;
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return responce;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private LiveData<String> fileMetaDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
+        MutableLiveData<String> responce = new MutableLiveData<>();
+        Log.d("TAG", "getStatusData: check C " + preferences.getString("commonReferenceDate", ""));
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
+            long fileCreationTime = storageMetadata.getCreationTimeMillis();
+            long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", 0);
+            Log.d("TAG", "getStatusData: check C1 " + fileCreationTime + "  " + fileDownloadTime);
+            if (fileDownloadTime != fileCreationTime) {
+                responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
+                preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", fileCreationTime).apply();
+            } else {
+                try {
+                    File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" +
+                            CommonFunctions.getInstance().getDatabaseStorage(activity) + "/" + wardNo + "/" + dates + ".json");
+                    if (!file.exists()) {
+                        responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
+                    } else {
+                        responce.postValue("success");
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+        });
+        return responce;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private LiveData<String> getFileDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
+        MutableLiveData<String> responce = new MutableLiveData<>();
+        Log.d("TAG", "getStatusData: check D ");
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
+            try {
+                String str = new String(taskSnapshot, StandardCharsets.UTF_8);
+                File root = new File(Environment.getExternalStorageDirectory(), "WardJson/" +
+                        CommonFunctions.getInstance().getDatabaseStorage(activity) + "/" + wardNo);
+                if (!root.exists()) {
+                    root.mkdirs();
+                }
+                File wardFile = new File(root, dates + ".json");
+                FileWriter writer = new FileWriter(wardFile, true);
+                writer.append(str);
+                writer.flush();
+                writer.close();
+                responce.postValue("success");
+                Log.d("TAG", "getStatusData: check D1 ");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return responce;
+    }
+
 
     public void storageFileDownload(Activity activity) {
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
@@ -738,7 +809,7 @@ public class Repository {
                     public void onDataChange(DataSnapshot dataSnapshot1) {
                         int dateCount = 1, totalCount = 1;
                         if (dataSnapshot1.getValue() != null) {
-                            if (dataSnapshot1.hasChild(currentDate) ){
+                            if (dataSnapshot1.hasChild(currentDate)) {
                                 dateCount = Integer.parseInt(dataSnapshot1.child(currentDate).getValue().toString()) + 1;
                             }
                             if (dataSnapshot1.hasChild("totalCount")) {
@@ -768,7 +839,7 @@ public class Repository {
             removeLocalData("SurveyDateWise");
         }
         activity.runOnUiThread(() -> {
-            if (identityBitmap==null){
+            if (identityBitmap == null) {
                 new AsyncTask<Void, Void, Bitmap>() {
                     @Override
                     protected void onPreExecute() {
@@ -839,7 +910,7 @@ public class Repository {
                         }
                     }
                 }.execute();
-            }else {
+            } else {
                 new AsyncTask<Void, Void, Boolean>() {
                     @Override
                     protected void onPreExecute() {
@@ -1007,7 +1078,7 @@ public class Repository {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public LiveData<String> saveRevisitData(Activity activity, HashMap<String, Object> hashMapData, Bitmap identityBitmap,String cardKey) {
+    public LiveData<String> saveRevisitData(Activity activity, HashMap<String, Object> hashMapData, Bitmap identityBitmap, String cardKey) {
         MutableLiveData<String> response = new MutableLiveData<>("");
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", MODE_PRIVATE);
         new AsyncTask<Void, Void, Boolean>() {

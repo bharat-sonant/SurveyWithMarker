@@ -5,7 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
 
@@ -21,6 +24,7 @@ public class FileDownloadViewModel extends ViewModel {
     boolean isMoved = true,isFirstTime = true;
     public ObservableField<Boolean> isVisible = new ObservableField<>(false);
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     public void init(FileDownloadPageActivity fileDownloadPageActivity) {
         activity = fileDownloadPageActivity;
         preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
@@ -30,11 +34,12 @@ public class FileDownloadViewModel extends ViewModel {
             new Repository.DownloadKmlFile(common.getKmlFilePath(preferences.getString("ward", ""), activity),activity).execute();
             new Repository().storageFileDownload(activity);
             new Repository().fileDownload(activity).observeForever(dataSnapshot -> {
-                if (dataSnapshot.equalsIgnoreCase("success")) {
+                Log.d("TAG", "init: check "+dataSnapshot);
+                if (dataSnapshot.equalsIgnoreCase("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ")) {
+                    showAlertBox(dataSnapshot);
+                }else {
                     common.closeDialog();
                     isVisible.set(true);
-                }else {
-                    showAlertBox(dataSnapshot);
                 }
             });
         }
