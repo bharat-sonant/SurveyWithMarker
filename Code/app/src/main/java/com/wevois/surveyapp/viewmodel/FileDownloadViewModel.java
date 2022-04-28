@@ -34,7 +34,6 @@ public class FileDownloadViewModel extends ViewModel {
             new Repository.DownloadKmlFile(common.getKmlFilePath(preferences.getString("ward", ""), activity),activity).execute();
             new Repository().storageFileDownload(activity);
             new Repository().fileDownload(activity).observeForever(dataSnapshot -> {
-                Log.d("TAG", "init: check "+dataSnapshot);
                 if (dataSnapshot.equalsIgnoreCase("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ")) {
                     showAlertBox(dataSnapshot);
                 }else {

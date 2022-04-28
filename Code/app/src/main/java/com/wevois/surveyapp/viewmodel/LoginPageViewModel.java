@@ -116,7 +116,6 @@ public class LoginPageViewModel extends ViewModel {
     }
 
     private void callLoginCheck(String s,boolean isLogin) {
-        Log.d("TAG", "callLoginCheck: check B "+preferences.getString("userId","")+"   "+isLogin);
         new Repository().loginUserId(activity, s).observeForever(dataSnapshot -> {
             if (dataSnapshot.getValue() != null) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -170,11 +169,9 @@ public class LoginPageViewModel extends ViewModel {
                                     }
                                 }
                             } else {
-                                Log.d("TAG", "callLoginCheck: check "+preferences.getString("userId",""));
                                 common.showAlertBox("Invalid User!", false, activity);
                             }
                         } else {
-                            Log.d("TAG", "callLoginCheck: check A "+preferences.getString("userId",""));
                             common.showAlertBox("Invalid User!", false, activity);
                         }
                     } else if (snapshot.child("status").getValue().equals("3")) {

@@ -200,7 +200,7 @@ public class OfflinePageViewModel extends ViewModel {
                 }
                 new Repository().sendHousesData(activity, countCheck, cardNo, null, null, newMobiles, housesMap, markingKey, cardJsonObject, wardJsonObject, jsonObject,preferences.getString("ward", ""),
                         preferences.getString("userId", ""),line,rfid,markingRevisit,currentDate).observeForever(dataSnapshots -> {
-                    Log.d("TAG", "saveSurveyData: check A " + dataSnapshots);
+
                     if (dataSnapshots.equalsIgnoreCase("success")) {
                         saveMarkingData(4,cardNo,line,markingKey);
                         removeCardLocalData();

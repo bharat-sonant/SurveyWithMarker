@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,8 +20,6 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,14 +36,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -256,7 +251,7 @@ public class Repository {
                             storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + preferences.getString("ward", "") + "/mapUpdateHistoryJson.json").getMetadata().addOnSuccessListener(storageMetadata -> {
                                 long fileCreationTime = storageMetadata.getCreationTimeMillis();
                                 long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + "" + preferences.getString("ward", "") + "mapUpdateHistoryJsonDownloadTime", 0);
-                                Log.d("TAG", "getStatusData: check A " + fileCreationTime + "  " + fileDownloadTime);
+
                                 if (fileDownloadTime != fileCreationTime) {
                                     storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + preferences.getString("ward", "") + "/mapUpdateHistoryJson.json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
                                         try {
@@ -294,7 +289,6 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> checkDate(String wardNo, Activity activity, SharedPreferences preferences) {
         MutableLiveData<String> responce = new MutableLiveData<>();
-        Log.d("TAG", "getStatusData: check B ");
         try {
             JSONArray jsonArray = new JSONArray(preferences.getString(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + "mapUpdateHistoryJson", ""));
             for (int i = jsonArray.length() - 1; i >= 0; i--) {
@@ -304,12 +298,10 @@ public class Repository {
                     Date date2 = format.parse(jsonArray.getString(i));
                     if (date1.after(date2)) {
                         preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
-                        Log.d("TAG", "getStatusData: check B1 " + preferences.getString("commonReferenceDate", ""));
                         responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
                         break;
                     } else if (date1.equals(date2)) {
                         preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
-                        Log.d("TAG", "getStatusData: check B2 " + preferences.getString("commonReferenceDate", ""));
                         responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
                         break;
                     }
@@ -326,12 +318,10 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> fileMetaDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
         MutableLiveData<String> responce = new MutableLiveData<>();
-        Log.d("TAG", "getStatusData: check C " + preferences.getString("commonReferenceDate", ""));
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", 0);
-            Log.d("TAG", "getStatusData: check C1 " + fileCreationTime + "  " + fileDownloadTime);
             if (fileDownloadTime != fileCreationTime) {
                 responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
                 preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", fileCreationTime).apply();
@@ -355,7 +345,6 @@ public class Repository {
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> getFileDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
         MutableLiveData<String> responce = new MutableLiveData<>();
-        Log.d("TAG", "getStatusData: check D ");
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
             try {
@@ -371,7 +360,6 @@ public class Repository {
                 writer.flush();
                 writer.close();
                 responce.postValue("success");
-                Log.d("TAG", "getStatusData: check D1 ");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -505,7 +493,7 @@ public class Repository {
         FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("CardScanDataDownloadTime", 0);
-            if (fileDownloadTime != fileCreationTime || preferences.getString("CardScanData", "").equalsIgnoreCase("")) {
+            if (fileDownloadTime == fileCreationTime ) {
                 FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getBytes(100000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     JSONObject jsonCard = new JSONObject();

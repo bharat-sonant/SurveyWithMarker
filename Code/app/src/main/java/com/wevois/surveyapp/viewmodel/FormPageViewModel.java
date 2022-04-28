@@ -138,7 +138,6 @@ public class FormPageViewModel extends ViewModel {
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             if (snapshot.child("name").getValue() != null && snapshot.child("name").getValue().toString().length() > 0) {
                                 userTv.set(snapshot.child("name").getValue().toString());
-                                Log.d("TAG", "init: check C " + snapshot.child("name").getValue().toString());
                             }
                             if (snapshot.child("houseType").getValue() != null && snapshot.child("houseType").getValue().toString().length() > 0) {
                                 if (Integer.parseInt(snapshot.child("houseType").getValue().toString()) != 1 && Integer.parseInt(snapshot.child("houseType").getValue().toString()) != 19) {
@@ -736,7 +735,6 @@ public class FormPageViewModel extends ViewModel {
             @Override
             public void afterTextChanged(Editable editable) {
                 userTv.set(editable.toString());
-                Log.d("TAG", "init: check D "+editable.toString());
             }
         };
     }
@@ -1090,7 +1088,7 @@ public class FormPageViewModel extends ViewModel {
         }
         new Repository().sendHousesData(activity, countCheck, currentCardNumber, identityBitmap, myPath, newMobiles, housesMap, markingKey, jsonObject, dataObject, jsonObjectWard,preferences.getString("ward", ""),
                 preferences.getString("userId", ""),preferences.getString("line", ""),preferences.getString("rfid", ""),preferences.getString("markingRevisit", "no"),currentDate).observeForever(dataSnapshot -> {
-            Log.d("TAG", "saveSurveyData: check " + dataSnapshot);
+
             if (dataSnapshot.equalsIgnoreCase("success")) {
                 showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद |", true, "survey", preferences.getString("cardNo", ""));
             }

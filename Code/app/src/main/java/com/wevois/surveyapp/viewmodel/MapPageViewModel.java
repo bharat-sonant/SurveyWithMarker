@@ -6,7 +6,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -22,10 +21,8 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +66,6 @@ import com.google.maps.android.data.kml.KmlLayer;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.repository.Repository;
-import com.wevois.surveyapp.views.FileDownloadPageActivity;
 import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.MapPageActivity;
 import com.wevois.surveyapp.views.OfflinePageActivity;
@@ -504,7 +500,6 @@ public class MapPageViewModel extends ViewModel {
     @SuppressLint("StaticFieldLeak")
     public void lineData() {
         try {
-            Log.d("TAG", "lineDraw: check "+CommonFunctions.getInstance().getDatabaseStorage(activity)+"   "+preferences.getString("ward", "")+"   "+jsonObjectLines);
             File file = new File(Environment.getExternalStorageDirectory(), "WardJson/"+
                     CommonFunctions.getInstance().getDatabaseStorage(activity)+"/"+preferences.getString("ward", "")+"/"+preferences.getString("commonReferenceDate","") + ".json");
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -541,7 +536,6 @@ public class MapPageViewModel extends ViewModel {
                     jsonArray = jsonObjectLines.getJSONObject(String.valueOf(j)).getJSONArray("points");
                 }catch (Exception e){
                 }
-                Log.d("TAG", "lineDraw: check "+jsonArray+"   "+j+"   "+jsonObjectLines);
                 ArrayList<LatLng> commonDirectionPositionList = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     n = jsonArray.getJSONArray(i).getDouble(0);

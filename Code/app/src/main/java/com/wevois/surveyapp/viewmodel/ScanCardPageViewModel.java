@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -168,9 +167,10 @@ public class ScanCardPageViewModel extends ViewModel {
                             stringBuilder.append(item.getValue());
                             stringBuilder.append("\n");
                             scanTv.set("" + item.getValue());
-                            if (item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
+                            if (item.getValue().contains("BHER") || item.getValue().contains("NIWA")||item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
                                 try {
                                     JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
+
                                     if (serialNoDataJsonObject.has(item.getValue()) && isCardMatched) {
                                         runOnUiThread(() -> {
                                             isCardMatched = false;
@@ -195,7 +195,6 @@ public class ScanCardPageViewModel extends ViewModel {
                                             preferences.edit().putString("houseType", houseType).apply();
                                             preferences.edit().putString("markingKey", markingKey).apply();
                                             preferences.edit().putString("markingRevisit", markingRevisit).apply();
-                                            Log.d("TAG", "receiveDetections: check card F " + serialNoDataJsonObject.has(item.getValue()) + "   " + isCardMatched);
                                             JSONObject jsonObject;
                                             int isVerified = 1;
                                             String cardNo = "";
