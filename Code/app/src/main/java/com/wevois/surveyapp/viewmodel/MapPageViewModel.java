@@ -23,6 +23,7 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Looper;
 import android.util.Base64;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;

@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -322,7 +323,7 @@ public class Repository {
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", 0);
-            if (fileDownloadTime != fileCreationTime) {
+            if (fileDownloadTime != fileCreationTime||fileDownloadTime==fileCreationTime) {
                 responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
                 preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", fileCreationTime).apply();
             } else {
