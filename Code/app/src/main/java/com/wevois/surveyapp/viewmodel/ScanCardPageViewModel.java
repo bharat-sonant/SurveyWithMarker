@@ -167,7 +167,7 @@ public class ScanCardPageViewModel extends ViewModel {
                             stringBuilder.append(item.getValue());
                             stringBuilder.append("\n");
                             scanTv.set("" + item.getValue());
-                            if (item.getValue().contains("BHER") || item.getValue().contains("NIWA")||item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
+                            if (item.getValue().contains("BHER") || item.getValue().contains("NWI")||item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
                                 try {
                                     JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
 
