@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -170,7 +171,6 @@ public class ScanCardPageViewModel extends ViewModel {
                             if (item.getValue().contains("BHER") || item.getValue().contains("NWI")||item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
                                 try {
                                     JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
-
                                     if (serialNoDataJsonObject.has(item.getValue()) && isCardMatched) {
                                         runOnUiThread(() -> {
                                             isCardMatched = false;

@@ -494,7 +494,7 @@ public class Repository {
         FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("CardScanDataDownloadTime", 0);
-            if (fileDownloadTime == fileCreationTime ) {
+            if (fileDownloadTime != fileCreationTime ) {
                 FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getBytes(100000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     JSONObject jsonCard = new JSONObject();
