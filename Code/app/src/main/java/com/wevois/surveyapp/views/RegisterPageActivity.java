@@ -8,7 +8,6 @@ import android.os.Bundle;
 
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityRegisterPageBinding;
-import com.wevois.surveyapp.viewmodel.LoginPageViewModel;
 import com.wevois.surveyapp.viewmodel.RegisterPageViewModel;
 
 public class RegisterPageActivity extends AppCompatActivity {

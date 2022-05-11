@@ -63,7 +63,7 @@ public class CommonFunctions {
     private float[] values = new float[3];
     ProgressDialog dialog;
     LatLng previousLatLng;
-    HttpURLConnection urlc = null;
+    HttpURLConnection urlConnection = null;
     Marker markerManOne, markerManTwo, markerManThree, markerManFour, markerManFive, markerManSix, markerManStop;
 
     private static CommonFunctions single_instance = null;
@@ -80,16 +80,16 @@ public class CommonFunctions {
     public boolean internetIsConnected() {
         try
         {
-            urlc = (HttpURLConnection) (new URL("https://google.com").openConnection());
-            urlc.setRequestProperty("User-Agent", "Test");
-            urlc.setRequestProperty("Connection", "close");
-            urlc.setConnectTimeout(10000);
-            urlc.setReadTimeout(10000);
-            urlc.connect();
-            if (urlc.getResponseCode() == 200) {
+            urlConnection = (HttpURLConnection) (new URL("https://google.com").openConnection());
+            urlConnection.setRequestProperty("User-Agent", "Test");
+            urlConnection.setRequestProperty("Connection", "close");
+            urlConnection.setConnectTimeout(10000);
+            urlConnection.setReadTimeout(10000);
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == 200) {
                 closedInternetCheckMethod();
             }
-            return (urlc.getResponseCode() == 200);
+            return (urlConnection.getResponseCode() == 200);
         } catch (IOException e) {
             closedInternetCheckMethod();
             return (false);
@@ -98,9 +98,9 @@ public class CommonFunctions {
 
     public void closedInternetCheckMethod(){
         try {
-            urlc.getInputStream().close();
-            urlc.getOutputStream().close();
-            urlc.disconnect();
+            urlConnection.getInputStream().close();
+            urlConnection.getOutputStream().close();
+            urlConnection.disconnect();
         } catch (Exception ea) {
         }
     }
@@ -116,18 +116,15 @@ public class CommonFunctions {
     }
 
     public DatabaseReference getDatabaseForApplication(Context context) {
-        DatabaseReference databaseReferencePath = FirebaseDatabase.getInstance(getSp(context).getString("dbPath", "")).getReference();
-        return databaseReferencePath;
+        return FirebaseDatabase.getInstance(getSp(context).getString("dbPath", "")).getReference();
     }
 
     public String getDatabaseStorage(Context context) {
-        String storagePath = getSp(context).getString("storagePath", "");
-        return storagePath;
+        return getSp(context).getString("storagePath", "");
     }
 
     private SharedPreferences getSp(Context context) {
-        SharedPreferences sp = context.getSharedPreferences("FirebasePath", MODE_PRIVATE);
-        return sp;
+        return context.getSharedPreferences("FirebasePath", MODE_PRIVATE);
     }
 
     public SensorEventListener mySensorEventListener = new SensorEventListener() {

@@ -5,21 +5,13 @@ import static android.content.Context.MODE_PRIVATE;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
-import android.os.Handler;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.database.DataSnapshot;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.repository.Repository;
-import com.wevois.surveyapp.views.FileDownloadPageActivity;
 import com.wevois.surveyapp.views.OfflinePageActivity;
 
 import org.json.JSONArray;

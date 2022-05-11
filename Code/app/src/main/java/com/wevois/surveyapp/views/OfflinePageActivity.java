@@ -10,7 +10,6 @@ import android.view.WindowManager;
 
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityOfflinePageBinding;
-import com.wevois.surveyapp.viewmodel.FormPageViewModel;
 import com.wevois.surveyapp.viewmodel.OfflinePageViewModel;
 
 public class OfflinePageActivity extends AppCompatActivity {

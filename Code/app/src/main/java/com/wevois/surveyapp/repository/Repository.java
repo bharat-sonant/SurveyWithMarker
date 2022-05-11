@@ -12,7 +12,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Base64;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -59,11 +58,11 @@ public class Repository {
     String cardNumber = "SIKA10010";
 
     public LiveData<DataSnapshot> checkVersion(Activity activity) {
-        MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
+        MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Settings/LatestVersions/survey").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                responce.setValue(dataSnapshot);
+                response.setValue(dataSnapshot);
             }
 
             @Override
@@ -71,15 +70,15 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     public LiveData<DataSnapshot> loginUserId(Activity activity, String user_id) {
-        MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
+        MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("pin").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                responce.setValue(dataSnapshot);
+                response.setValue(dataSnapshot);
             }
 
             @Override
@@ -87,15 +86,15 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     public LiveData<DataSnapshot> checkMobile(Activity activity, String user_id) {
-        MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
+        MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(user_id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                responce.setValue(dataSnapshot);
+                response.setValue(dataSnapshot);
             }
 
             @Override
@@ -103,11 +102,11 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     public LiveData<String> uploadRegisterImage(Activity activity, Bitmap identityBitmap, String userMobile) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/SurveyorsIdentity");
         StorageReference mountainImagesRef = storageRef.child(userMobile + ".jpg");
@@ -116,15 +115,15 @@ public class Repository {
         byte[] data = baos.toByteArray();
         UploadTask uploadTask = mountainImagesRef.putBytes(data);
         uploadTask.addOnFailureListener(exception -> {
-            responce.setValue("Error");
+            response.setValue("Error");
         }).addOnSuccessListener(taskSnapshot -> {
-            responce.setValue("Success");
+            response.setValue("Success");
         });
-        return responce;
+        return response;
     }
 
     public LiveData<String> sendRegisterData(Activity activity, String mobileNumber, String userName) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("Surveyors").orderByChild("mobile").equalTo(mobileNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -154,9 +153,9 @@ public class Repository {
                             String finalNamePrefix = namePrefix + nameSuffix;
                             deviceDBRef.child(nameSuffix).setValue(dataSend).addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    responce.setValue(finalNamePrefix);
+                                    response.setValue(finalNamePrefix);
                                 } else {
-                                    responce.setValue("Error");
+                                    response.setValue("Error");
                                     Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -175,12 +174,12 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     public LiveData<String> fileDownload(Activity activity) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("SurveyorsCuurentAssignment").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -259,23 +258,23 @@ public class Repository {
                                             String str = new String(taskSnapshot, StandardCharsets.UTF_8);
                                             preferences.edit().putString(CommonFunctions.getInstance().getDatabaseStorage(activity) + preferences.getString("ward", "") + "mapUpdateHistoryJson", str).apply();
                                             preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + "" + preferences.getString("ward", "") + "mapUpdateHistoryJsonDownloadTime", fileCreationTime).apply();
-                                            responce.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
+                                            response.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                     });
                                 } else {
-                                    responce.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
+                                    response.postValue(String.valueOf(checkDate(preferences.getString("ward", ""), activity, preferences)));
                                 }
                             });
                         } else {
-                            responce.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
+                            response.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
                         }
                     } else {
-                        responce.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
+                        response.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
                     }
                 } else {
-                    responce.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
+                    response.setValue("आज आपका कोई कार्य असाइन नहीं है।  कृपया सुपरवाईज़र से कांटेक्ट करे || ");
                 }
             }
 
@@ -284,12 +283,12 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> checkDate(String wardNo, Activity activity, SharedPreferences preferences) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         try {
             JSONArray jsonArray = new JSONArray(preferences.getString(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + "mapUpdateHistoryJson", ""));
             for (int i = jsonArray.length() - 1; i >= 0; i--) {
@@ -299,11 +298,11 @@ public class Repository {
                     Date date2 = format.parse(jsonArray.getString(i));
                     if (date1.after(date2)) {
                         preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
-                        responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
+                        response.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
                         break;
                     } else if (date1.equals(date2)) {
                         preferences.edit().putString("commonReferenceDate", String.valueOf(jsonArray.getString(i))).apply();
-                        responce.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
+                        response.postValue(String.valueOf(fileMetaDownload(String.valueOf(jsonArray.getString(i)), wardNo, activity, preferences)));
                         break;
                     }
                 } catch (ParseException e) {
@@ -313,39 +312,39 @@ public class Repository {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return responce;
+        return response;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> fileMetaDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", 0);
             if (fileDownloadTime != fileCreationTime|| fileDownloadTime==fileCreationTime) {
-                responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
+                response.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
                 preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", fileCreationTime).apply();
             } else {
                 try {
                     File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" +
                             CommonFunctions.getInstance().getDatabaseStorage(activity) + "/" + wardNo + "/" + dates + ".json");
                     if (!file.exists()) {
-                        responce.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
+                        response.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
                     } else {
-                        responce.postValue("success");
+                        response.postValue("success");
                     }
                 } catch (Exception e) {
 
                 }
             }
         });
-        return responce;
+        return response;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     private LiveData<String> getFileDownload(String dates, String wardNo, Activity activity, SharedPreferences preferences) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getBytes(10000000).addOnSuccessListener(taskSnapshot -> {
             try {
@@ -360,12 +359,12 @@ public class Repository {
                 writer.append(str);
                 writer.flush();
                 writer.close();
-                responce.postValue("success");
+                response.postValue("success");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
-        return responce;
+        return response;
     }
 
 
@@ -518,7 +517,7 @@ public class Repository {
     }
 
     public LiveData<String> DownloadTodayCardScan(Activity activity) {
-        MutableLiveData<String> responce = new MutableLiveData<>();
+        MutableLiveData<String> response = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData/DailyHouseCount/" + preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -535,7 +534,7 @@ public class Repository {
                         if ((dataSnapshot.getValue() != null) && dataSnapshot.hasChild(date)) {
                             count[0] = count[0] + Integer.parseInt(dataSnapshot.child(date).getValue().toString());
                         }
-                        responce.setValue("" + count[0]);
+                        response.setValue("" + count[0]);
                     }
 
                     @Override
@@ -549,16 +548,16 @@ public class Repository {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        return responce;
+        return response;
     }
 
     public LiveData<DataSnapshot> DownloadCurrentLine(Activity activity) {
-        MutableLiveData<DataSnapshot> responce = new MutableLiveData<>();
+        MutableLiveData<DataSnapshot> response = new MutableLiveData<>();
         SharedPreferences preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
         CommonFunctions.getInstance().getDatabaseForApplication(activity).child("EntitySurveyData").child("CurrentLine").child(preferences.getString("ward", "") + "/" + preferences.getString("userId", "")).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                responce.setValue(dataSnapshot);
+                response.setValue(dataSnapshot);
             }
 
             @Override
@@ -566,7 +565,7 @@ public class Repository {
 
             }
         });
-        return responce;
+        return response;
     }
 
     public LiveData<DataSnapshot> MarkingLine(Activity activity, String currentLine) {
@@ -841,15 +840,15 @@ public class Repository {
                         if (!root.exists()) {
                             root.mkdirs();
                         }
-                        File mypath = null;
-                        mypath = new File(root, cardNumber + ".jpg");
+                        File myPath = null;
+                        myPath = new File(root, cardNumber + ".jpg");
                         FileInputStream fos = null;
                         Bitmap bitmap = null;
                         try {
-                            fos = new FileInputStream(mypath);
+                            fos = new FileInputStream(myPath);
                             bitmap = BitmapFactory.decodeStream(fos);
                             fos.close();
-                            mypath.delete();
+                            myPath.delete();
                         } catch (Exception e) {
                             e.printStackTrace();
                             activity.runOnUiThread(() -> {
@@ -1159,11 +1158,11 @@ public class Repository {
 
     public static class DownloadKmlFile extends AsyncTask<String, Void, byte[]> {
         private final String mUrl;
-        private final Activity activitys;
+        private final Activity activities;
 
         public DownloadKmlFile(String url, Activity activity) {
             mUrl = url;
-            activitys = activity;
+            activities = activity;
         }
 
         protected byte[] doInBackground(String... params) {
@@ -1185,7 +1184,7 @@ public class Repository {
         protected void onPostExecute(byte[] byteArr) {
             if (byteArr != null) {
                 try {
-                    SharedPreferences preferences = activitys.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
+                    SharedPreferences preferences = activities.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
                     String saveThis = Base64.encodeToString(byteArr, Base64.DEFAULT);
                     preferences.edit().putString("kmlByteArray", saveThis).apply();
                 } catch (Exception e) {

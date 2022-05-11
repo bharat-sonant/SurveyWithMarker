@@ -18,8 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityLoginPageBinding;
@@ -94,7 +92,6 @@ public class LoginPageActivity extends AppCompatActivity {
                             alertBuilder.setTitle("जरूरी सूचना");
                             alertBuilder.setMessage("सभी permissions देना अनिवार्य है बिना permissions के आप आगे नहीं बढ़ सकते है |");
                             alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> viewModel.allowPermissions());
-
                             AlertDialog alert = alertBuilder.create();
                             alert.show();
                         } else {

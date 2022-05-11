@@ -10,7 +10,6 @@ import android.view.WindowManager;
 
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityRevisitPageBinding;
-import com.wevois.surveyapp.viewmodel.OfflinePageViewModel;
 import com.wevois.surveyapp.viewmodel.RevisitPageViewModel;
 
 public class RevisitPageActivity extends AppCompatActivity {

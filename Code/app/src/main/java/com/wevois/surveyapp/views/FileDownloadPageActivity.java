@@ -1,5 +1,6 @@
 package com.wevois.surveyapp.views;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,11 +18,11 @@ import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityFileDownloadPageBinding;
 import com.wevois.surveyapp.viewmodel.FileDownloadViewModel;
-import com.wevois.surveyapp.viewmodel.LoginPageViewModel;
 
 public class FileDownloadPageActivity extends AppCompatActivity {
     ActivityFileDownloadPageBinding binding;
     FileDownloadViewModel viewModel;
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

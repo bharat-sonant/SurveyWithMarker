@@ -19,7 +19,6 @@ public class FormPageActivity extends AppCompatActivity {
     ActivityFormPageBinding binding;
     FormPageViewModel viewModel;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +33,6 @@ public class FormPageActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
         viewModel.init(this,binding.spnrHouseType,getIntent().getStringExtra("from"),binding.spnrHouseTypeCardRevisit,binding.spnrReason);
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -46,7 +44,6 @@ public class FormPageActivity extends AppCompatActivity {
                 }
             }
     }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();

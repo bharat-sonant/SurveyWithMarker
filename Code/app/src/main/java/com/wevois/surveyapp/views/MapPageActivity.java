@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,7 +15,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityMapPageBinding;
-import com.wevois.surveyapp.repository.Repository;
 import com.wevois.surveyapp.viewmodel.MapPageViewModel;
 
 public class MapPageActivity extends AppCompatActivity {

@@ -9,7 +9,6 @@ import android.os.Bundle;
 
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityVerifyPageBinding;
-import com.wevois.surveyapp.viewmodel.LoginPageViewModel;
 import com.wevois.surveyapp.viewmodel.VerifyPageViewModel;
 
 public class VerifyPageActivity extends AppCompatActivity {

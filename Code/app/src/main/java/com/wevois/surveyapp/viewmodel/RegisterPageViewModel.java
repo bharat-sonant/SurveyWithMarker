@@ -13,7 +13,6 @@ import android.os.Build;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -90,7 +89,6 @@ public class RegisterPageViewModel extends ViewModel {
 
     public void imageClick() {
         common.setProgressBar("Please Wait...", activity, activity);
-        //sendSurveyorData();
         if (!(userMobileTv.get().length() == 10)) {
             common.closeDialog();
             common.showAlertBox("Please enter valid mobile no.", false, activity);
@@ -113,7 +111,6 @@ public class RegisterPageViewModel extends ViewModel {
     @BindingAdapter({"imageUrl"})
     public static void loadImage(ImageView view, Bitmap bitmap) {
         if (bitmap == null) {
-            //view.setImageResource(R.drawable.);
         } else {
             view.setImageBitmap(bitmap);
         }
@@ -158,7 +155,6 @@ public class RegisterPageViewModel extends ViewModel {
         if (mCamera != null) {
             Camera.Parameters parameters = mCamera.getParameters();
             if (parameters.getMaxNumMeteringAreas() > 0) {
-                Log.i("TAG", "fancy !");
                 Rect rect = calculateFocusArea(event.getX(), event.getY());
 
                 parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
