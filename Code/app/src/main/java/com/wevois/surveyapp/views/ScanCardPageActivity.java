@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.view.WindowManager;
+
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityScanCardPageBinding;
 import com.wevois.surveyapp.viewmodel.ScanCardPageViewModel;
@@ -26,6 +27,6 @@ public class ScanCardPageActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        viewModel.init(this,binding.surfaceView);
+        viewModel.init(this, binding.surfaceView);
     }
 }

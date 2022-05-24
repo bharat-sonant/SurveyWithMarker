@@ -17,7 +17,7 @@ public class CityDetailsAdapter extends RecyclerView.Adapter<CityDetailsAdapter.
     Context context;
     OnClickInterface onClickInterface;
 
-    public CityDetailsAdapter(ArrayList<CityDetails> models, Context context,OnClickInterface onClickInterface){
+    public CityDetailsAdapter(ArrayList<CityDetails> models, Context context, OnClickInterface onClickInterface) {
         this.models = models;
         this.context = context;
         this.onClickInterface = onClickInterface;
@@ -27,7 +27,7 @@ public class CityDetailsAdapter extends RecyclerView.Adapter<CityDetailsAdapter.
     @Override
     public ParentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        DisplayCityListBinding binding = DisplayCityListBinding.inflate(layoutInflater,parent,false);
+        DisplayCityListBinding binding = DisplayCityListBinding.inflate(layoutInflater, parent, false);
 
         return new ParentViewHolder(binding);
     }
@@ -43,10 +43,10 @@ public class CityDetailsAdapter extends RecyclerView.Adapter<CityDetailsAdapter.
         return models.size();
     }
 
-    class ParentViewHolder extends RecyclerView.ViewHolder{
+    class ParentViewHolder extends RecyclerView.ViewHolder {
         DisplayCityListBinding binding;
 
-        public ParentViewHolder(DisplayCityListBinding itemVeiw){
+        public ParentViewHolder(DisplayCityListBinding itemVeiw) {
             super(itemVeiw.getRoot());
             this.binding = itemVeiw;
             itemVeiw.linearLay.setOnClickListener(view -> onClickInterface.onItemClick(getAdapterPosition()));

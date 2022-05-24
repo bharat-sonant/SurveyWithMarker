@@ -100,7 +100,7 @@ public class MapPageViewModel extends ViewModel {
     private LocationCallback locationCallback;
     double n, m, lat, lng;
     CountDownTimer countDownTimerLocation;
-    int currentLine = 1, position = 0,endLineNo=1;
+    int currentLine = 1, position = 0, endLineNo = 1;
     LatLng latLng, currentLatLng;
     CommonFunctions common = CommonFunctions.getInstance();
     JSONObject jsonObjectLines;
@@ -253,15 +253,15 @@ public class MapPageViewModel extends ViewModel {
                                 float lineDis[] = new float[1];
                                 Location.distanceBetween(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1]), currentLatLng.latitude, currentLatLng.longitude, lineDis);
                                 if (lineDis[0] <= preferences.getInt("minimumDistanceBetweenMarkerAndSurvey", 10)) {
-                                    common.setProgressBar("Please wait...",activity,activity);
+                                    common.setProgressBar("Please wait...", activity, activity);
                                     new Repository().checkNetWork(activity).observeForever(response -> {
                                         File fileOrDirectory = new File(Environment.getExternalStorageDirectory(), "SurveyApp/MarkingImages");
                                         Bitmap bitmap = checkImageOnLocal(fileOrDirectory, image);
                                         if (response) {
-                                            common.getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/"+preferences.getString("ward","")+"/"+currentLine+"/"+markerKeyBy).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            common.getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + currentLine + "/" + markerKeyBy).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot snapshot) {
-                                                    if (snapshot.getValue()!=null){
+                                                    if (snapshot.getValue() != null) {
                                                         if (snapshot.hasChild("latLng")) {
                                                             JSONArray jsonArray = new JSONArray();
                                                             jsonArray.put(String.valueOf(snapshot.child("latLng").getValue()));
@@ -501,8 +501,8 @@ public class MapPageViewModel extends ViewModel {
     @SuppressLint("StaticFieldLeak")
     public void lineData() {
         try {
-            File file = new File(Environment.getExternalStorageDirectory(), "WardJson/"+
-                    CommonFunctions.getInstance().getDatabaseStorage(activity)+"/"+preferences.getString("ward", "")+"/"+preferences.getString("commonReferenceDate","") + ".json");
+            File file = new File(Environment.getExternalStorageDirectory(), "WardJson/" +
+                    CommonFunctions.getInstance().getDatabaseStorage(activity) + "/" + preferences.getString("ward", "") + "/" + preferences.getString("commonReferenceDate", "") + ".json");
             BufferedReader br = new BufferedReader(new FileReader(file));
             StringBuilder result = new StringBuilder();
             String str;
@@ -510,7 +510,7 @@ public class MapPageViewModel extends ViewModel {
                 result.append(str);
             }
             jsonObjectLines = new JSONObject(String.valueOf(result));
-            if (jsonObjectLines.has("totalLines")){
+            if (jsonObjectLines.has("totalLines")) {
                 endLineNo = Integer.parseInt(jsonObjectLines.get("totalLines").toString());
             }
         } catch (Exception ignored) {
@@ -533,9 +533,9 @@ public class MapPageViewModel extends ViewModel {
         }
         try {
             for (int j = lines.get(0); j <= lines.get(lines.size() - 1); j++) {
-                try{
+                try {
                     jsonArray = jsonObjectLines.getJSONObject(String.valueOf(j)).getJSONArray("points");
-                }catch (Exception e){
+                } catch (Exception e) {
                 }
                 ArrayList<LatLng> commonDirectionPositionList = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -576,13 +576,13 @@ public class MapPageViewModel extends ViewModel {
                 } catch (Exception e) {
                 }
             }
-            if (jsonObjectMarking.has(String.valueOf(currentLine))){
+            if (jsonObjectMarking.has(String.valueOf(currentLine))) {
                 try {
                     setMarker();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-            }else {
+            } else {
                 JSONObject finalJsonObjectMarking = jsonObjectMarking;
                 new Repository().MarkingLine(activity, "" + currentLine).observeForever(dataSnapshot -> {
                     if (dataSnapshot.getValue() != null) {

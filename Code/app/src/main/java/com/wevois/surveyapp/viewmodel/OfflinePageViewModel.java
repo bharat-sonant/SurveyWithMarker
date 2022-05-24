@@ -27,13 +27,13 @@ public class OfflinePageViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
     CommonFunctions common = CommonFunctions.getInstance();
-    JSONObject wardJsonObject = new JSONObject(),jsonObject = new JSONObject(),cardJsonObject = new JSONObject();
+    JSONObject wardJsonObject = new JSONObject(), jsonObject = new JSONObject(), cardJsonObject = new JSONObject();
     boolean isDelete = false;
     ArrayList<String> cardNumbers = new ArrayList<>();
     int position = 0;
     JSONObject tempObject = new JSONObject();
     String currentDate, countCheck = "2", markingKey = "", markingRevisit = "", ward, address, cardNo, createdDate, houseType, lat, lng, line, name, rfid, mobile, servingCount = "", cardType = "";
-    ArrayList<String> newMobiles=new ArrayList<>();
+    ArrayList<String> newMobiles = new ArrayList<>();
 
     public void init(OfflinePageActivity offlinePageActivity) {
         activity = offlinePageActivity;
@@ -43,7 +43,7 @@ public class OfflinePageViewModel extends ViewModel {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void syncBtn(){
+    public void syncBtn() {
         try {
             jsonObject = new JSONObject(preferences.getString("scanHousesData", ""));
             wardJsonObject = jsonObject.getJSONObject(preferences.getString("ward", ""));
@@ -108,8 +108,8 @@ public class OfflinePageViewModel extends ViewModel {
     }
 
     private void fillSurveyDetailsIfAlreadyExists() {
-        new Repository().checkRfidAlreadyExists(activity,preferences.getString("ward", ""),line,rfid).observeForever(dataSnapshot -> {
-            if (dataSnapshot!=null) {
+        new Repository().checkRfidAlreadyExists(activity, preferences.getString("ward", ""), line, rfid).observeForever(dataSnapshot -> {
+            if (dataSnapshot != null) {
                 if (dataSnapshot.getValue() != null) {
                     countCheck = "1";
                 } else {
@@ -121,8 +121,8 @@ public class OfflinePageViewModel extends ViewModel {
     }
 
     private void saveSurveyDetails() {
-        new Repository().CheckWardMapping(activity,cardNo).observeForever(dataSnapshot -> {
-            if (dataSnapshot!=null) {
+        new Repository().CheckWardMapping(activity, cardNo).observeForever(dataSnapshot -> {
+            if (dataSnapshot != null) {
                 if (dataSnapshot.getValue() != null) {
                     String line = "", ward = "";
                     if (dataSnapshot.hasChild("line")) {
@@ -144,7 +144,7 @@ public class OfflinePageViewModel extends ViewModel {
     }
 
     private void callMethod() {
-        new Repository().checkMarkedHouses(activity,ward,line,markingKey).observeForever(dataSnapshot -> {
+        new Repository().checkMarkedHouses(activity, ward, line, markingKey).observeForever(dataSnapshot -> {
             boolean isSaveData = true;
             if (dataSnapshot != null) {
                 if (dataSnapshot.getValue() != null) {
@@ -190,13 +190,13 @@ public class OfflinePageViewModel extends ViewModel {
                 } else {
                     newMobiles.add(mobile.trim());
                 }
-                new Repository().sendHousesData(activity, countCheck, cardNo, null, null, newMobiles, housesMap, markingKey, cardJsonObject, wardJsonObject, jsonObject,preferences.getString("ward", ""),
-                        preferences.getString("userId", ""),line,rfid,markingRevisit,currentDate).observeForever(dataSnapshots -> {
+                new Repository().sendHousesData(activity, countCheck, cardNo, null, null, newMobiles, housesMap, markingKey, cardJsonObject, wardJsonObject, jsonObject, preferences.getString("ward", ""),
+                        preferences.getString("userId", ""), line, rfid, markingRevisit, currentDate).observeForever(dataSnapshots -> {
 
                     if (dataSnapshots.equalsIgnoreCase("success")) {
-                        saveMarkingData(4,cardNo,line,markingKey);
+                        saveMarkingData(4, cardNo, line, markingKey);
                         removeCardLocalData();
-                    }else if (dataSnapshots.equalsIgnoreCase("successData")){
+                    } else if (dataSnapshots.equalsIgnoreCase("successData")) {
                         removeCardLocalData();
                     }
                 });
@@ -213,23 +213,23 @@ public class OfflinePageViewModel extends ViewModel {
     }
 
     private void sendSurveyRequiredRevisited() {
-        HashMap<String,Object> housesHashMap = new HashMap<>();
-        housesHashMap.put("address",address);
-        housesHashMap.put("cardNo",cardNo);
-        housesHashMap.put("phaseNo","2");
-        housesHashMap.put("createdDate",createdDate);
-        housesHashMap.put("houseType",houseType);
-        housesHashMap.put("latLng","(" + lat + "," + lng + ")");
-        housesHashMap.put("line",line);
-        housesHashMap.put("name",name);
-        housesHashMap.put("mobile",mobile);
-        housesHashMap.put("rfid",rfid);
-        housesHashMap.put("ward",ward);
+        HashMap<String, Object> housesHashMap = new HashMap<>();
+        housesHashMap.put("address", address);
+        housesHashMap.put("cardNo", cardNo);
+        housesHashMap.put("phaseNo", "2");
+        housesHashMap.put("createdDate", createdDate);
+        housesHashMap.put("houseType", houseType);
+        housesHashMap.put("latLng", "(" + lat + "," + lng + ")");
+        housesHashMap.put("line", line);
+        housesHashMap.put("name", name);
+        housesHashMap.put("mobile", mobile);
+        housesHashMap.put("rfid", rfid);
+        housesHashMap.put("ward", ward);
         if (!servingCount.equals("")) {
-            housesHashMap.put("servingCount",servingCount);
+            housesHashMap.put("servingCount", servingCount);
         }
-        new Repository().RequiredSurveyHouses(activity,housesHashMap,common.getDatabaseForApplication(activity).child("RequiredSurveyHouses/" + ward + "/" + line + "/" + cardNo)).observeForever(string->{
-            if (string.equalsIgnoreCase("success")){
+        new Repository().RequiredSurveyHouses(activity, housesHashMap, common.getDatabaseForApplication(activity).child("RequiredSurveyHouses/" + ward + "/" + line + "/" + cardNo)).observeForever(string -> {
+            if (string.equalsIgnoreCase("success")) {
                 try {
                     wardJsonObject.remove(cardNo);
                     jsonObject.put(preferences.getString("ward", ""), wardJsonObject);
@@ -250,7 +250,7 @@ public class OfflinePageViewModel extends ViewModel {
         }
     }
 
-    private void saveMarkingData(int i,String v,String lineNo,String marking) {
+    private void saveMarkingData(int i, String v, String lineNo, String marking) {
         JSONObject jsonObject = new JSONObject();
         if (!preferences.getString("markingData", "").equalsIgnoreCase("")) {
             try {
@@ -262,7 +262,7 @@ public class OfflinePageViewModel extends ViewModel {
         try {
             markingDataObject = jsonObject.getJSONObject(lineNo);
             JSONArray jsonArray = markingDataObject.getJSONArray(marking);
-            jsonArray.put(i,v);
+            jsonArray.put(i, v);
             try {
                 markingDataObject.put(marking, jsonArray);
             } catch (Exception e) {
@@ -290,7 +290,7 @@ public class OfflinePageViewModel extends ViewModel {
         alert11.show();
     }
 
-    public void onBackClick(){
+    public void onBackClick() {
         activity.finish();
     }
 }

@@ -322,7 +322,7 @@ public class Repository {
         storageReference.child(CommonFunctions.getInstance().getDatabaseStorage(activity) + "/WardLinesHouseJson/" + wardNo + "/" + dates + ".json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", 0);
-            if (fileDownloadTime != fileCreationTime|| fileDownloadTime==fileCreationTime) {
+            if (fileDownloadTime != fileCreationTime || fileDownloadTime == fileCreationTime) {
                 response.postValue(String.valueOf(getFileDownload(dates, wardNo, activity, preferences)));
                 preferences.edit().putLong(CommonFunctions.getInstance().getDatabaseStorage(activity) + wardNo + dates + "DownloadTime", fileCreationTime).apply();
             } else {
@@ -493,7 +493,7 @@ public class Repository {
         FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getMetadata().addOnSuccessListener(storageMetadata -> {
             long fileCreationTime = storageMetadata.getCreationTimeMillis();
             long fileDownloadTime = preferences.getLong("CardScanDataDownloadTime", 0);
-            if (fileDownloadTime != fileCreationTime ) {
+            if (fileDownloadTime != fileCreationTime) {
                 FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + CommonFunctions.getInstance().getDatabaseStorage(activity) + "/CardScanData/CardScanData.json").getBytes(100000000).addOnSuccessListener(taskSnapshot -> {
                     String s = new String(taskSnapshot, StandardCharsets.UTF_8);
                     JSONObject jsonCard = new JSONObject();

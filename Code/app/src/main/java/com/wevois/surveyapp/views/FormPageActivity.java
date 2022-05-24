@@ -19,6 +19,7 @@ public class FormPageActivity extends AppCompatActivity {
     ActivityFormPageBinding binding;
     FormPageViewModel viewModel;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,19 +32,21 @@ public class FormPageActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding.setFormpageviewmodel(viewModel);
         binding.setLifecycleOwner(this);
-        viewModel.init(this,binding.spnrHouseType,getIntent().getStringExtra("from"),binding.spnrHouseTypeCardRevisit,binding.spnrReason);
+        viewModel.init(this, binding.spnrHouseType, getIntent().getStringExtra("from"), binding.spnrHouseTypeCardRevisit, binding.spnrReason);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode == MY_CAMERA_PERMISSION_CODE) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    viewModel.showAlertDialog(true);
-                } else {
-                    Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-                }
+        if (requestCode == MY_CAMERA_PERMISSION_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                viewModel.showAlertDialog(true);
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
+        }
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();

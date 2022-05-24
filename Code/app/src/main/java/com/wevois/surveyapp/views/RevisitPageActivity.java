@@ -28,6 +28,6 @@ public class RevisitPageActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding.setRevisitpageviewmodel(viewModel);
         binding.setLifecycleOwner(this);
-        viewModel.init(this,binding.spinner3,binding.spnrHouseTypeRevisit);
+        viewModel.init(this, binding.spinner3, binding.spnrHouseTypeRevisit);
     }
 }

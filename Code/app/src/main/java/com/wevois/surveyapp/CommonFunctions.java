@@ -18,14 +18,12 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.Html;
-import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
@@ -68,7 +66,8 @@ public class CommonFunctions {
 
     private static CommonFunctions single_instance = null;
 
-    private CommonFunctions() { }
+    private CommonFunctions() {
+    }
 
     public static CommonFunctions getInstance() {
         if (single_instance == null) {
@@ -78,8 +77,7 @@ public class CommonFunctions {
     }
 
     public boolean internetIsConnected() {
-        try
-        {
+        try {
             urlConnection = (HttpURLConnection) (new URL("https://google.com").openConnection());
             urlConnection.setRequestProperty("User-Agent", "Test");
             urlConnection.setRequestProperty("Connection", "close");
@@ -96,7 +94,7 @@ public class CommonFunctions {
         }
     }
 
-    public void closedInternetCheckMethod(){
+    public void closedInternetCheckMethod() {
         try {
             urlConnection.getInputStream().close();
             urlConnection.getOutputStream().close();
@@ -130,6 +128,7 @@ public class CommonFunctions {
     public SensorEventListener mySensorEventListener = new SensorEventListener() {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
+
         public void onSensorChanged(SensorEvent event) {
             float[] magnetic, gravity;
             switch (event.sensor.getType()) {
@@ -225,7 +224,7 @@ public class CommonFunctions {
         }
     }
 
-    public void setMovingMarker(GoogleMap mMap,LatLng currentLatLng, Context context) {
+    public void setMovingMarker(GoogleMap mMap, LatLng currentLatLng, Context context) {
         previousLatLng = currentLatLng;
         int height = 150;
         int width = 60;
@@ -356,7 +355,7 @@ public class CommonFunctions {
         }
     }
 
-    public void setProgressBar(String title, Context context,Activity activity) {
+    public void setProgressBar(String title, Context context, Activity activity) {
         closeDialog();
         dialog = new ProgressDialog(context);
         dialog.setCancelable(false);
@@ -373,20 +372,20 @@ public class CommonFunctions {
         }
     }
 
-    public void getKml(Context context){
+    public void getKml(Context context) {
         getDatabaseForApplication(context).child("Defaults/KmlBoundary").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue()!=null){
+                if (dataSnapshot.getValue() != null) {
                     JSONObject jsonKmlBoundary = new JSONObject();
-                    for (DataSnapshot snapshot:dataSnapshot.getChildren()){
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         try {
-                            jsonKmlBoundary.put(snapshot.getKey(),snapshot.getValue().toString());
+                            jsonKmlBoundary.put(snapshot.getKey(), snapshot.getValue().toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
-                    getSp(context).edit().putString("kmlBoundaryList",jsonKmlBoundary.toString()).commit();
+                    getSp(context).edit().putString("kmlBoundaryList", jsonKmlBoundary.toString()).commit();
                 }
             }
 
@@ -397,11 +396,11 @@ public class CommonFunctions {
         });
     }
 
-    public String getKmlFilePath(String wardNo,Context context) {
-        String kmlFilepath="";
+    public String getKmlFilePath(String wardNo, Context context) {
+        String kmlFilepath = "";
         JSONObject jsonObject;
         try {
-            jsonObject = new JSONObject(getSp(context).getString("kmlBoundaryList",""));
+            jsonObject = new JSONObject(getSp(context).getString("kmlBoundaryList", ""));
             kmlFilepath = jsonObject.getString(wardNo);
         } catch (JSONException e) {
             e.printStackTrace();

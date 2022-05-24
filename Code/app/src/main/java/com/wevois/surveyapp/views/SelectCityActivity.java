@@ -29,7 +29,6 @@ public class SelectCityActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onStart() {
         super.onStart();

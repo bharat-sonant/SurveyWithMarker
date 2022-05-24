@@ -167,7 +167,7 @@ public class ScanCardPageViewModel extends ViewModel {
                             stringBuilder.append(item.getValue());
                             stringBuilder.append("\n");
                             scanTv.set("" + item.getValue());
-                            if (item.getValue().contains("BHER") || item.getValue().contains("NWI")||item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH")|| item.getValue().contains("KNGH")) {
+                            if (item.getValue().contains("BHER") || item.getValue().contains("NWI") || item.getValue().contains("SIKA") || item.getValue().contains("RENA") || item.getValue().contains("RENC") || item.getValue().contains("SHAH") || item.getValue().contains("KNGH") || item.getValue().contains("JAIS")) {
                                 try {
                                     JSONObject serialNoDataJsonObject = new JSONObject(preferences.getString("SerialNoData", ""));
                                     if (serialNoDataJsonObject.has(item.getValue()) && isCardMatched) {
@@ -277,7 +277,7 @@ public class ScanCardPageViewModel extends ViewModel {
             countDownTimer.cancel();
             countDownTimer = null;
         }
-        if (mCameraSource!=null)
+        if (mCameraSource != null)
             mCameraSource.stop();
         isSurfaceVisible.set(false);
         Intent intent = new Intent(activity, VerifyPageActivity.class);

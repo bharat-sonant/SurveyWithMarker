@@ -30,14 +30,14 @@ public class SelectCityViewModel extends ViewModel implements OnClickInterface {
     Activity activity;
     public ObservableField<CityDetailsAdapter> cityRecyclerViewAdapter = new ObservableField<>();
     SharedPreferences pathSharedPreferences;
-    String city,key,databasePath,sPath;
+    String city, key, databasePath, sPath;
     ArrayList<CityDetails> arrayList = new ArrayList<>();
     CommonFunctions common = CommonFunctions.getInstance();
 
     public void init(SelectCityActivity selectCityActivity) {
         activity = selectCityActivity;
-        pathSharedPreferences =activity.getSharedPreferences("FirebasePath", MODE_PRIVATE);
-        common.setProgressBar("Please wait...",activity,activity);
+        pathSharedPreferences = activity.getSharedPreferences("FirebasePath", MODE_PRIVATE);
+        common.setProgressBar("Please wait...", activity, activity);
         getCityDetails();
     }
 
@@ -67,16 +67,16 @@ public class SelectCityViewModel extends ViewModel implements OnClickInterface {
                         e.printStackTrace();
                     }
                 });
-            }else {
+            } else {
                 setCityList();
             }
         });
     }
 
-    public void setCityList(){
+    public void setCityList() {
         try {
             arrayList.clear();
-            JSONArray jsonArray = new JSONArray(pathSharedPreferences.getString("CityDetails",""));
+            JSONArray jsonArray = new JSONArray(pathSharedPreferences.getString("CityDetails", ""));
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String cityName = jsonObject.getString("cityName");
@@ -89,7 +89,7 @@ public class SelectCityViewModel extends ViewModel implements OnClickInterface {
                     databasePath = dbPath;
                     sPath = storagePath;
                 } else {
-                    arrayList.add(new CityDetails(cityName,keyName, dbPath, storagePath));
+                    arrayList.add(new CityDetails(cityName, keyName, dbPath, storagePath));
                 }
             }
             cityRecyclerViewAdapter.set(new CityDetailsAdapter(arrayList, activity, this));

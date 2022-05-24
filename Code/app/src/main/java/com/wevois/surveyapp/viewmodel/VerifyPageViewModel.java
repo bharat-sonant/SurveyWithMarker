@@ -14,6 +14,7 @@ import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.repository.Repository;
 import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.VerifyPageActivity;
+
 public class VerifyPageViewModel extends ViewModel {
     Activity activity;
     CommonFunctions common = CommonFunctions.getInstance();
@@ -22,18 +23,18 @@ public class VerifyPageViewModel extends ViewModel {
     String rfidNumber, houseType = "", markingKey = "";
     public final ObservableField<String> cardNumber = new ObservableField<>("");
 
-    public void init(VerifyPageActivity verifyPageActivity){
+    public void init(VerifyPageActivity verifyPageActivity) {
         activity = verifyPageActivity;
         preferences = activity.getSharedPreferences("surveyApp", Context.MODE_PRIVATE);
-        currentLine = Integer.parseInt(preferences.getString("line",""));
-        houseType = preferences.getString("houseType","");
-        markingKey = preferences.getString("markingKey","");
+        currentLine = Integer.parseInt(preferences.getString("line", ""));
+        houseType = preferences.getString("houseType", "");
+        markingKey = preferences.getString("markingKey", "");
         rfidNumber = preferences.getString("rfid", "");
         cardNumber.set(preferences.getString("cardNo", ""));
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void onClick(){
+    public void onClick() {
         common.setProgressBar("Please Wait...", activity, activity);
         new Repository().checkNetWork(activity).observeForever(response -> {
             if (response) {
@@ -45,7 +46,7 @@ public class VerifyPageViewModel extends ViewModel {
         });
     }
 
-    public void onBack(){
+    public void onBack() {
         activity.finish();
     }
 
@@ -77,7 +78,7 @@ public class VerifyPageViewModel extends ViewModel {
     }
 
     private void showDetailToSurveyor(String cardNumber, String assignedWard, String assignedLine, boolean cardExistsAtAnotherLine) {
-        new Repository().CheckHousesDetails(activity, assignedWard,assignedLine,cardNumber).observeForever(dataSnapshot -> {
+        new Repository().CheckHousesDetails(activity, assignedWard, assignedLine, cardNumber).observeForever(dataSnapshot -> {
             if (dataSnapshot.getValue() != null) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if (snapshot.hasChild("name")) {

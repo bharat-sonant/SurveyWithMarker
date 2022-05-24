@@ -52,7 +52,7 @@ public class LoginPageActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         SharedPreferences preferences = getSharedPreferences("surveyApp", MODE_PRIVATE);
-        if (preferences.getString("userId","").equalsIgnoreCase("")){
+        if (preferences.getString("userId", "").equalsIgnoreCase("")) {
             try {
                 SharedPreferences dbPathSP = getSharedPreferences("FirebasePath", MODE_PRIVATE);
                 dbPathSP.edit().putString("login", "no").apply();
@@ -61,7 +61,7 @@ public class LoginPageActivity extends AppCompatActivity {
                 finish();
             } catch (Exception ignored) {
             }
-        }else {
+        } else {
             CommonFunctions.getInstance().setProgressBar("Check user id.", this, this);
             CommonFunctions.getInstance().getDatabaseForApplication(this).child("Surveyors/" + preferences.getString("userId", "") + "/isLogin").setValue("no").addOnCompleteListener(task -> {
                 CommonFunctions.getInstance().closeDialog();

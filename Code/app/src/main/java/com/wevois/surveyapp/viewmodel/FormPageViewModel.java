@@ -70,7 +70,7 @@ public class FormPageViewModel extends ViewModel {
     JSONArray jsonArrayHouseType = new JSONArray(), jsonArrayHouseTypeRevisit = new JSONArray();
     JSONObject dataObject = new JSONObject(), jsonObject = new JSONObject(), jsonObjectWard = new JSONObject();
     Spinner spinnerHouseType, spinnerRevisitReason, spinnerRevisitHouseType;
-    AlertDialog customTimerAlertBox, customTimerAlertBoxForImage,saveAlertBox;
+    AlertDialog customTimerAlertBox, customTimerAlertBoxForImage, saveAlertBox;
     public final ObservableField<String> userTv = new ObservableField<>("");
     public final ObservableField<String> mobileTv = new ObservableField<>("");
     public final ObservableField<String> totalHousesTv = new ObservableField<>("");
@@ -138,7 +138,7 @@ public class FormPageViewModel extends ViewModel {
                             if (snapshot.child("houseType").getValue() != null && snapshot.child("houseType").getValue().toString().length() > 0) {
                                 if (Integer.parseInt(snapshot.child("houseType").getValue().toString()) != 1 && Integer.parseInt(snapshot.child("houseType").getValue().toString()) != 19) {
                                     commercialButtonClick();
-                                }else {
+                                } else {
                                     awasiyeButtonClick();
                                 }
                                 try {
@@ -173,7 +173,7 @@ public class FormPageViewModel extends ViewModel {
                     }
                 }
             });
-            new Repository().checkRfidAlreadyExists(activity,preferences.getString("ward", ""),preferences.getString("line", ""),preferences.getString("rfid", "")).observeForever(dataSnapshot -> {
+            new Repository().checkRfidAlreadyExists(activity, preferences.getString("ward", ""), preferences.getString("line", ""), preferences.getString("rfid", "")).observeForever(dataSnapshot -> {
                 if (dataSnapshot != null) {
                     if (dataSnapshot.getValue() != null) {
                         countCheck = "1";
@@ -375,7 +375,7 @@ public class FormPageViewModel extends ViewModel {
                 }
             } catch (Exception e) {
             }
-            showAlertBoxForImage(bitmap,isHouses);
+            showAlertBoxForImage(bitmap, isHouses);
         };
         surfaceView.setOnTouchListener((view, motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1082,8 +1082,8 @@ public class FormPageViewModel extends ViewModel {
         if (isVisible.get()) {
             housesMap.put("servingCount", totalHousesTv.get());
         }
-        new Repository().sendHousesData(activity, countCheck, currentCardNumber, identityBitmap, myPath, newMobiles, housesMap, markingKey, jsonObject, dataObject, jsonObjectWard,preferences.getString("ward", ""),
-                preferences.getString("userId", ""),preferences.getString("line", ""),preferences.getString("rfid", ""),preferences.getString("markingRevisit", "no"),currentDate).observeForever(dataSnapshot -> {
+        new Repository().sendHousesData(activity, countCheck, currentCardNumber, identityBitmap, myPath, newMobiles, housesMap, markingKey, jsonObject, dataObject, jsonObjectWard, preferences.getString("ward", ""),
+                preferences.getString("userId", ""), preferences.getString("line", ""), preferences.getString("rfid", ""), preferences.getString("markingRevisit", "no"), currentDate).observeForever(dataSnapshot -> {
 
             if (dataSnapshot.equalsIgnoreCase("success")) {
                 showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद |", true, "survey", preferences.getString("cardNo", ""));
@@ -1115,9 +1115,9 @@ public class FormPageViewModel extends ViewModel {
         if (from.equalsIgnoreCase("map")) {
             common.showAlertBox("card number not found.", false, activity);
         } else {
-            if (preferences.getString("markingRevisit","no").equalsIgnoreCase("no")) {
+            if (preferences.getString("markingRevisit", "no").equalsIgnoreCase("no")) {
                 sendRevisitData();
-            }else {
+            } else {
                 common.showAlertBox("Already revisit on marker.", false, activity);
             }
         }
@@ -1163,11 +1163,11 @@ public class FormPageViewModel extends ViewModel {
                     data.put("date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                     data.put("id", preferences.getString("userId", ""));
                     data.put("revisitedBy", "Surveyor");
-                    data.put("image", preferences.getString("cardNo", "")+ ".jpg");
+                    data.put("image", preferences.getString("cardNo", "") + ".jpg");
                     data.put("name", revisitNameTv.get());
                 } catch (Exception e) {
                 }
-                new Repository().saveRevisitData(activity, data,identityBitmap,preferences.getString("cardNo", "")).observeForever(dataSnapshot -> {
+                new Repository().saveRevisitData(activity, data, identityBitmap, preferences.getString("cardNo", "")).observeForever(dataSnapshot -> {
                     showAlertBox("आपका सर्वे पूरा हुआ, धन्यवाद !", true, "revisit", preferences.getString("cardNo", ""));
                 });
             }
