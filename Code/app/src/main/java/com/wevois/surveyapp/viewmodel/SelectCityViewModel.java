@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.View;
 
 import androidx.databinding.ObservableField;
@@ -83,6 +84,7 @@ public class SelectCityViewModel extends ViewModel implements OnClickInterface {
                 String keyName = jsonObject.getString("key");
                 String dbPath = jsonObject.getString("dbPath");
                 String storagePath = jsonObject.getString("storagePath");
+                Log.e("PATH " , dbPath+","+storagePath);
                 if (cityName.equalsIgnoreCase("Test")) {
                     city = cityName;
                     key = keyName;

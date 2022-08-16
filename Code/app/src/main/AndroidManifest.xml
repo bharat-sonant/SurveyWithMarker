@@ -16,6 +16,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
+            android:name=".TestFormPage"
+            android:exported="false" />
+        <activity
             android:name=".views.RevisitPageActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"
@@ -29,7 +32,7 @@
             android:name=".views.VerifyPageActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"
             android:exported="true"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".views.ScanCardPageActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|navigation"

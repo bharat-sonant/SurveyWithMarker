@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import androidx.databinding.ObservableField;
 import androidx.lifecycle.ViewModel;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -43,6 +44,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.wevois.surveyapp.CommonFunctions;
 import com.wevois.surveyapp.R;
+import com.wevois.surveyapp.adapter.AdapterEdit;
 import com.wevois.surveyapp.repository.Repository;
 import com.wevois.surveyapp.views.FormPageActivity;
 import com.wevois.surveyapp.views.VerifyPageActivity;
@@ -64,6 +66,7 @@ import java.util.List;
 public class FormPageViewModel extends ViewModel {
     Activity activity;
     SharedPreferences preferences;
+    RecyclerView rv;
     CommonFunctions common = CommonFunctions.getInstance();
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
     List<String> houseTypeList = new ArrayList<>(), houseTypeListRevisit = new ArrayList<>(), revisitTypeList = new ArrayList<>();
@@ -100,7 +103,7 @@ public class FormPageViewModel extends ViewModel {
     File myPath = null;
     Bitmap identityBitmap = null;
 
-    public void init(FormPageActivity formPageActivity, Spinner spnrHouseType, String froms, Spinner spnrHouseTypeCardRevisit, Spinner spnrReason) {
+    public void init(FormPageActivity formPageActivity, Spinner spnrHouseType, String froms, Spinner spnrHouseTypeCardRevisit, Spinner spnrReason, RecyclerView recyclerView) {
         activity = formPageActivity;
         preferences = activity.getSharedPreferences("surveyApp", MODE_PRIVATE);
         currentCardNumber = preferences.getString("cardNo", "");
@@ -108,6 +111,7 @@ public class FormPageViewModel extends ViewModel {
         spinnerHouseType = spnrHouseType;
         spinnerRevisitHouseType = spnrHouseTypeCardRevisit;
         spinnerRevisitReason = spnrReason;
+        rv = recyclerView;
         hT = preferences.getString("houseType", "");
         markingKey = preferences.getString("markingKey", "");
         SimpleDateFormat dateFormat1 = new SimpleDateFormat("dd-MM-yyyy");
@@ -183,6 +187,23 @@ public class FormPageViewModel extends ViewModel {
                 }
             });
         }
+    }
+
+    public void addBox() {
+
+
+
+        if (totalHousesTv.get().length() > 0) {
+            rv.removeAllViews();
+        }
+
+        int integer = Integer.parseInt(totalHousesTv.get());
+        int i = 0;
+        for (i = 0; i < integer; i++) {
+        }
+        AdapterEdit adapterEdit = new AdapterEdit(activity,i);
+        rv.setAdapter(adapterEdit);
+
     }
 
     public void saveImage() {

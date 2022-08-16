@@ -332,12 +332,13 @@ public class MapPageViewModel extends ViewModel {
                                 } else {
                                     common.showAlertBox(preferences.getString("messageMinimumDistanceMarkerAndSurvey", ""), false, activity);
                                 }
-                            } catch (Exception e) {
+                            }  catch (Exception e) {
                             }
                         }
                     } catch (Exception e) {
                     }
                 }
+
             }
         });
         task.addOnFailureListener(activity, e -> {
@@ -417,6 +418,8 @@ public class MapPageViewModel extends ViewModel {
                     try {
                         fos.close();
                     } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
                         e.printStackTrace();
                     }
                 }
@@ -562,6 +565,9 @@ public class MapPageViewModel extends ViewModel {
                 hashLineMarker.put(j, polyline);
             }
         } catch (JSONException ignored) {
+
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
         showMarker();
     }

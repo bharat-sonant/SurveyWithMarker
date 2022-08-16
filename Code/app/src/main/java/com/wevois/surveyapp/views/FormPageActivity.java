@@ -32,7 +32,7 @@ public class FormPageActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding.setFormpageviewmodel(viewModel);
         binding.setLifecycleOwner(this);
-        viewModel.init(this, binding.spnrHouseType, getIntent().getStringExtra("from"), binding.spnrHouseTypeCardRevisit, binding.spnrReason);
+        viewModel.init(this, binding.spnrHouseType, getIntent().getStringExtra("from"), binding.spnrHouseTypeCardRevisit, binding.spnrReason, binding.rv);
     }
 
     @Override

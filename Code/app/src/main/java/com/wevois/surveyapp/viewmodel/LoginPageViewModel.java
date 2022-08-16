@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -79,11 +80,13 @@ public class LoginPageViewModel extends ViewModel {
                     checkNetBy = false;
                     common.setProgressBar("Check application version.", activity, activity);
                     new Repository().checkVersion(activity).observeForever(dataSnapshot -> {
+                        Log.e("Version name ",dataSnapshot.getValue().toString());
                         common.closeDialog();
                         try {
                             String localVersion = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName;
                             if (dataSnapshot.getValue() != null) {
                                 String version = dataSnapshot.getValue().toString();
+                                Log.e("version name",version+" "+localVersion);
                                 if (!version.equals(localVersion)) {
                                     showVersionAlertBox();
                                 } else {
