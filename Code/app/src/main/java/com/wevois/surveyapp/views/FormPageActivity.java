@@ -1,15 +1,15 @@
 package com.wevois.surveyapp.views;
 
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.WindowManager;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
-
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.wevois.surveyapp.R;
 import com.wevois.surveyapp.databinding.ActivityFormPageBinding;
@@ -19,6 +19,7 @@ public class FormPageActivity extends AppCompatActivity {
     ActivityFormPageBinding binding;
     FormPageViewModel viewModel;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
+    private static final int CAMERA_CODE = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +33,7 @@ public class FormPageActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         binding.setFormpageviewmodel(viewModel);
         binding.setLifecycleOwner(this);
-        viewModel.init(this, binding.spnrHouseType, getIntent().getStringExtra("from"), binding.spnrHouseTypeCardRevisit, binding.spnrReason, binding.rv);
+        viewModel.init(this, binding.spnrHouseType, getIntent().getStringExtra("from"), binding.spnrHouseTypeCardRevisit, binding.spnrReason);
     }
 
     @Override
@@ -41,7 +42,13 @@ public class FormPageActivity extends AppCompatActivity {
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 viewModel.showAlertDialog(true);
-            } else {
+            }
+            else if (requestCode == CAMERA_CODE){
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    viewModel.showAlertDialoghome(true);
+                }
+            }
+            else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
         }

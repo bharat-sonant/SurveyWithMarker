@@ -51,5 +51,7 @@
                 android:text="Capture"
                 android:textColor="#fff" />
         </LinearLayout>
+
     </LinearLayout>
+
 </LinearLayout>
