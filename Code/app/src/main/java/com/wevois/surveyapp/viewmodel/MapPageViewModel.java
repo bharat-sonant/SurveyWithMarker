@@ -238,107 +238,111 @@ public class MapPageViewModel extends ViewModel {
         SettingsClient client = LocationServices.getSettingsClient(activity);
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
         task.addOnSuccessListener(activity, locationSettingsResponse -> {
-            if (selectedMarker != null) {
-                String markerKeyBy = selectedMarker.getTag().toString();
-                selectedMarker = null;
-                if (markingDataObject.length() > 0) {
-                    try {
-                        if (markingDataObject.has(markerKeyBy)) {
-                            common.setProgressBar("Please wait...", activity, activity);
-                            try {
-                                JSONArray jsonArray1 = markingDataObject.getJSONArray(markerKeyBy);
-                                String houseType = jsonArray1.get(2).toString();
-                                String image = jsonArray1.get(1).toString();
-                                String[] tempStr = String.valueOf(jsonArray1.get(0)).split(",");
-                                float lineDis[] = new float[1];
-                                Location.distanceBetween(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1]), currentLatLng.latitude, currentLatLng.longitude, lineDis);
-                                if (lineDis[0] <= preferences.getInt("minimumDistanceBetweenMarkerAndSurvey", 10)) {
-                                    common.setProgressBar("Please wait...", activity, activity);
-                                    new Repository().checkNetWork(activity).observeForever(response -> {
-                                        File fileOrDirectory = new File(Environment.getExternalStorageDirectory(), "SurveyApp/MarkingImages");
-                                        Bitmap bitmap = checkImageOnLocal(fileOrDirectory, image);
-                                        if (response) {
-                                            common.getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + currentLine + "/" + markerKeyBy).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot snapshot) {
-                                                    if (snapshot.getValue() != null) {
-                                                        if (snapshot.hasChild("latLng")) {
-                                                            JSONArray jsonArray = new JSONArray();
-                                                            jsonArray.put(String.valueOf(snapshot.child("latLng").getValue()));
-                                                            jsonArray.put(snapshot.child("image").getValue().toString());
-                                                            jsonArray.put(snapshot.child("houseType").getValue().toString());
-                                                            if (snapshot.hasChild("revisitKey")) {
-                                                                jsonArray.put(snapshot.child("revisitKey").getValue().toString());
-                                                            } else {
-                                                                jsonArray.put("no");
+            try {
+                if (selectedMarker != null) {
+                    String markerKeyBy = selectedMarker.getTag().toString();
+                    selectedMarker = null;
+                    if (markingDataObject.length() > 0) {
+                        try {
+                            if (markingDataObject.has(markerKeyBy)) {
+                                common.setProgressBar("Please wait...", activity, activity);
+                                try {
+                                    JSONArray jsonArray1 = markingDataObject.getJSONArray(markerKeyBy);
+                                    String houseType = jsonArray1.get(2).toString();
+                                    String image = jsonArray1.get(1).toString();
+                                    String[] tempStr = String.valueOf(jsonArray1.get(0)).split(",");
+                                    float lineDis[] = new float[1];
+                                    Location.distanceBetween(Double.parseDouble(tempStr[0]), Double.parseDouble(tempStr[1]), currentLatLng.latitude, currentLatLng.longitude, lineDis);
+                                    if (lineDis[0] <= preferences.getInt("minimumDistanceBetweenMarkerAndSurvey", 10)) {
+                                        common.setProgressBar("Please wait...", activity, activity);
+                                        new Repository().checkNetWork(activity).observeForever(response -> {
+                                            File fileOrDirectory = new File(Environment.getExternalStorageDirectory(), "SurveyApp/MarkingImages");
+                                            Bitmap bitmap = checkImageOnLocal(fileOrDirectory, image);
+                                            if (response) {
+                                                common.getDatabaseForApplication(activity).child("EntityMarkingData/MarkedHouses/" + preferences.getString("ward", "") + "/" + currentLine + "/" + markerKeyBy).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot snapshot) {
+                                                        if (snapshot.getValue() != null) {
+                                                            if (snapshot.hasChild("latLng")) {
+                                                                JSONArray jsonArray = new JSONArray();
+                                                                jsonArray.put(String.valueOf(snapshot.child("latLng").getValue()));
+                                                                jsonArray.put(snapshot.child("image").getValue().toString());
+                                                                jsonArray.put(snapshot.child("houseType").getValue().toString());
+                                                                if (snapshot.hasChild("revisitKey")) {
+                                                                    jsonArray.put(snapshot.child("revisitKey").getValue().toString());
+                                                                } else {
+                                                                    jsonArray.put("no");
+                                                                }
+                                                                if (snapshot.hasChild("cardNumber")) {
+                                                                    jsonArray.put(snapshot.child("cardNumber").getValue().toString());
+                                                                } else {
+                                                                    jsonArray.put("no");
+                                                                }
+                                                                if (snapshot.hasChild("rfidNotFoundKey")) {
+                                                                    jsonArray.put(snapshot.child("rfidNotFoundKey").getValue().toString());
+                                                                } else {
+                                                                    jsonArray.put("no");
+                                                                }
+                                                                try {
+                                                                    markingDataObject.put(snapshot.getKey(), jsonArray);
+                                                                } catch (Exception e) {
+                                                                }
                                                             }
-                                                            if (snapshot.hasChild("cardNumber")) {
-                                                                jsonArray.put(snapshot.child("cardNumber").getValue().toString());
-                                                            } else {
-                                                                jsonArray.put("no");
-                                                            }
-                                                            if (snapshot.hasChild("rfidNotFoundKey")) {
-                                                                jsonArray.put(snapshot.child("rfidNotFoundKey").getValue().toString());
-                                                            } else {
-                                                                jsonArray.put("no");
+                                                            JSONObject jsonObject = new JSONObject();
+                                                            if (!preferences.getString("markingData", "").equalsIgnoreCase("")) {
+                                                                try {
+                                                                    jsonObject = new JSONObject(preferences.getString("markingData", ""));
+                                                                } catch (Exception e) {
+                                                                }
                                                             }
                                                             try {
-                                                                markingDataObject.put(snapshot.getKey(), jsonArray);
+                                                                jsonObject.put(String.valueOf(currentLine), markingDataObject);
                                                             } catch (Exception e) {
                                                             }
-                                                        }
-                                                        JSONObject jsonObject = new JSONObject();
-                                                        if (!preferences.getString("markingData", "").equalsIgnoreCase("")) {
+                                                            preferences.edit().putString("markingData", jsonObject.toString()).apply();
                                                             try {
-                                                                jsonObject = new JSONObject(preferences.getString("markingData", ""));
-                                                            } catch (Exception e) {
+                                                                setMarker();
+                                                            } catch (JSONException e) {
+                                                                e.printStackTrace();
                                                             }
                                                         }
-                                                        try {
-                                                            jsonObject.put(String.valueOf(currentLine), markingDataObject);
-                                                        } catch (Exception e) {
-                                                        }
-                                                        preferences.edit().putString("markingData", jsonObject.toString()).apply();
-                                                        try {
-                                                            setMarker();
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
+
+                                                        if (bitmap == null) {
+                                                            StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + common.getDatabaseStorage(activity) + "/MarkingSurveyImages/" + preferences.getString("ward", "") + "/" + currentLine).child(Objects.requireNonNull(image));
+                                                            storageReference.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
+                                                                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                                setOnLocal(bmp, image);
+                                                                dialogForMarkerImage(bmp, houseType, markerKeyBy);
+                                                            }).addOnFailureListener(e -> {
+                                                                dialogForMarkerImage(null, houseType, markerKeyBy);
+                                                            });
+                                                        } else {
+                                                            dialogForMarkerImage(bitmap, houseType, markerKeyBy);
                                                         }
                                                     }
 
-                                                    if (bitmap == null) {
-                                                        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://dtdnavigator.appspot.com/" + common.getDatabaseStorage(activity) + "/MarkingSurveyImages/" + preferences.getString("ward", "") + "/" + currentLine).child(Objects.requireNonNull(image));
-                                                        storageReference.getBytes(Long.MAX_VALUE).addOnSuccessListener(bytes -> {
-                                                            Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                                                            setOnLocal(bmp, image);
-                                                            dialogForMarkerImage(bmp, houseType, markerKeyBy);
-                                                        }).addOnFailureListener(e -> {
-                                                            dialogForMarkerImage(null, houseType, markerKeyBy);
-                                                        });
-                                                    } else {
-                                                        dialogForMarkerImage(bitmap, houseType, markerKeyBy);
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
                                                     }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
-                                        } else {
-                                            dialogForMarkerImage(bitmap, houseType, markerKeyBy);
-                                        }
-                                    });
-                                } else {
-                                    common.showAlertBox(preferences.getString("messageMinimumDistanceMarkerAndSurvey", ""), false, activity);
+                                                });
+                                            } else {
+                                                dialogForMarkerImage(bitmap, houseType, markerKeyBy);
+                                            }
+                                        });
+                                    } else {
+                                        common.showAlertBox(preferences.getString("messageMinimumDistanceMarkerAndSurvey", ""), false, activity);
+                                    }
+                                } catch (Exception e) {
                                 }
-                            }  catch (Exception e) {
                             }
+                        } catch (Exception e) {
                         }
-                    } catch (Exception e) {
                     }
-                }
 
+                }
+            }catch (NullPointerException e){
+                e.printStackTrace();
             }
         });
         task.addOnFailureListener(activity, e -> {
