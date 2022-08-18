@@ -89,12 +89,13 @@ public class FormPageViewModel extends ViewModel {
     public ObservableField<Boolean> isVisibleReasonRevisit = new ObservableField<>(false);
     public ObservableField<Boolean> isVisibleRadioRevisit = new ObservableField<>(false);
     public ObservableField<Boolean> isVisibleCardRevisit = new ObservableField<>(false);
+    public ObservableField<Boolean> addBtnVisibility = new ObservableField<>(false);
 
     ArrayList<String> oldMobiles = new ArrayList<>(), newMobiles = new ArrayList<>();
     String mobileNumber = "", hT = "", markingKey = "", currentDate, countCheck = "2",
             currentCardNumber, from = "";
     boolean isMoved = true, isValid = true, isDelete = false;
-    private Camera mCamera;
+    private Camera mCamera , hCamera;
     private static final int FOCUS_AREA_SIZE = 300;
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -191,7 +192,7 @@ public class FormPageViewModel extends ViewModel {
 
     public void addBox() {
 
-
+        addBtnVisibility.set(true);
 
         if (totalHousesTv.get().length() > 0) {
             rv.removeAllViews();
@@ -212,6 +213,15 @@ public class FormPageViewModel extends ViewModel {
                 activity.requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
             } else {
                 showAlertDialog(true);
+            }
+        }
+    }
+    public void saveImagehome() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (activity.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                activity.requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_PERMISSION_CODE);
+            } else {
+                showAlertDialoghome(true);
             }
         }
     }
@@ -301,9 +311,8 @@ public class FormPageViewModel extends ViewModel {
         }
         camera.setDisplayOrientation(result);
     }
-
-    @SuppressLint("StaticFieldLeak")
-    public void showAlertDialog(boolean isHouses) {
+    @SuppressLint({"StaticFieldLeak", "ClickableViewAccessibility"})
+    public void showAlertDialoghome(boolean isCard) {
         try {
             if (customTimerAlertBox != null) {
                 customTimerAlertBox.dismiss();
@@ -396,7 +405,7 @@ public class FormPageViewModel extends ViewModel {
                 }
             } catch (Exception e) {
             }
-            showAlertBoxForImage(bitmap, isHouses);
+            showAlertBoxForImageHome(bitmap, isCard);
         };
         surfaceView.setOnTouchListener((view, motionEvent) -> {
             if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -408,6 +417,154 @@ public class FormPageViewModel extends ViewModel {
             }
             return false;
         });
+    }
+
+    @SuppressLint({"StaticFieldLeak", "ClickableViewAccessibility"})
+    public void showAlertDialog(boolean isCard) {
+        try {
+            if (customTimerAlertBox != null) {
+                customTimerAlertBox.dismiss();
+            }
+        } catch (Exception e) {
+        }
+        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
+        View dialogLayout = inflater.inflate(R.layout.custom_camera_alertbox, null);
+        alertDialog.setView(dialogLayout);
+        alertDialog.setCancelable(false);
+        customTimerAlertBox = alertDialog.create();
+        surfaceView = (SurfaceView) dialogLayout.findViewById(R.id.surfaceViews);
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_HARDWARE);
+        surfaceViewCallBack = new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                try {
+                    mCamera = Camera.open();
+                } catch (RuntimeException e) {
+                }
+                Camera.Parameters parameters;
+                parameters = mCamera.getParameters();
+                List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
+                parameters.setPictureSize(sizes.get(0).width, sizes.get(0).height);
+                mCamera.setParameters(parameters);
+                setCameraDisplayOrientation(activity, 0, mCamera);
+                try {
+                    mCamera.setPreviewDisplay(surfaceHolder);
+                    mCamera.startPreview();
+                } catch (Exception e) {
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+            }
+        };
+        surfaceHolder.addCallback(surfaceViewCallBack);
+        Button btn = dialogLayout.findViewById(R.id.capture_image_btn);
+        btn.setOnClickListener(v -> {
+            common.setProgressBar("Processing...", activity, activity);
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                }
+
+                @Override
+                protected Boolean doInBackground(Void... p) {
+                    mCamera.takePicture(null, null, null, pictureCallback);
+                    return null;
+                }
+            }.execute();
+        });
+        Button closeBtn = dialogLayout.findViewById(R.id.close_image_btn);
+        closeBtn.setOnClickListener(v -> {
+            try {
+                if (customTimerAlertBox != null) {
+                    customTimerAlertBox.dismiss();
+                }
+            } catch (Exception e) {
+            }
+        });
+        if (!activity.isFinishing()) {
+            customTimerAlertBox.show();
+        }
+        pictureCallback = (bytes, camera) -> {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90F);
+            Bitmap b = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            Bitmap bitmaps = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), matrix, true);
+            Bitmap bitmap = Bitmap.createScaledBitmap(bitmaps, 400, 600, false);
+
+            camera.stopPreview();
+            if (camera != null) {
+                camera.release();
+                mCamera = null;
+            }
+            try {
+                if (customTimerAlertBox != null) {
+                    customTimerAlertBox.dismiss();
+                }
+            } catch (Exception e) {
+            }
+            showAlertBoxForImage(bitmap, isCard);
+        };
+        surfaceView.setOnTouchListener((view, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                try {
+                    focusOnTouch(motionEvent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        });
+    }
+    private void showAlertBoxForImageHome(Bitmap i, boolean isHouses) {
+        try {
+            common.closeDialog();
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+        } catch (Exception e) {
+        }
+        LayoutInflater inflater = activity.getLayoutInflater();
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(activity);
+        View dialogLayout = inflater.inflate(R.layout.image_view_layout, null);
+        alertDialog.setView(dialogLayout);
+        alertDialog.setCancelable(false);
+        ImageView markerImage = dialogLayout.findViewById(R.id.marker_iv);
+        if (i != null) {
+            markerImage.setImageBitmap(i);
+        }
+        dialogLayout.findViewById(R.id.okeyBtn).setOnClickListener(view1 -> {
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+            identityBitmap = i;
+            if (isHouses) {
+                common.setProgressBar("Processing...", activity, activity);
+                setOnLocalhome();
+            }
+        });
+        Button closeBtn = dialogLayout.findViewById(R.id.close_view_btn);
+        closeBtn.setOnClickListener(view1 -> {
+            common.closeDialog();
+            if (customTimerAlertBoxForImage != null) {
+                customTimerAlertBoxForImage.dismiss();
+            }
+            isMoved = true;
+        });
+        customTimerAlertBoxForImage = alertDialog.create();
+        if (!activity.isFinishing()) {
+            customTimerAlertBoxForImage.show();
+        }
     }
 
     private void showAlertBoxForImage(Bitmap i, boolean isHouses) {
@@ -452,6 +609,41 @@ public class FormPageViewModel extends ViewModel {
     }
 
     @SuppressLint("StaticFieldLeak")
+    private void setOnLocalhome() {
+        new AsyncTask<Void, Void, Boolean>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Boolean doInBackground(Void... p) {
+                File root = new File(Environment.getExternalStorageDirectory(), "SurveyCardImage");
+                if (!root.exists()) {
+                    root.mkdirs();
+                }
+                myPath = new File(root, "Home" + ".jpg");
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(myPath);
+                    identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    try {
+                        fos.close();
+                    } catch (Exception ignored) {
+                        ignored.getMessage();
+                    }
+                }
+                common.closeDialog();
+                return null;
+            }
+        }.execute();
+    }
+
+    @SuppressLint("StaticFieldLeak")
     private void setOnLocal() {
         new AsyncTask<Void, Void, Boolean>() {
             @Override
@@ -472,11 +664,12 @@ public class FormPageViewModel extends ViewModel {
                     identityBitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
                 } catch (Exception e) {
                     e.printStackTrace();
-                } finally {
+                }
+                finally {
                     try {
                         fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } catch (Exception ignored) {
+                        ignored.getMessage();
                     }
                 }
                 common.closeDialog();
