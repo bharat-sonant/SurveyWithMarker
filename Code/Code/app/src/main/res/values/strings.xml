@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">SurveyApp</string>
+    <string name="title_activity_maps">Survey</string>
+    <string name="fb_login_protocol_scheme">fb980208498830952</string>
+    <string name="scan_button">Scan</string>
+    <string name="disconnect_button">Disconnect and Clear</string>
+    <string name="no_data">xx</string>
+    <string name="no_battery_level">-- %</string>
+    <string name="battery_icon">battery icon</string>
+    <string name="connect_button">Connect to device with index:</string>
+    <string name="connection_success">Successful</string>
+    <string name="connection_failure">Failed</string>
+    <string name="input_index">0</string>
+    <string name="battery_value">%1$s %%</string>
+    <string name="no_name">No name</string>
+    <string name="title_activity_add_marker">Map</string>
+    <string name="title_activity_after_installation_map">Map</string>
+    <string name="title_activity_check_maps">Map</string>
+    <string name="new_registration"><u>New Registration</u></string>
+    <string name="title_activity_card_survey">Map</string>
+    <string name="title_activity_card_data_collection">Map</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

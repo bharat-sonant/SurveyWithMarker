@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MapsActivity">
+    <item  android:id="@+id/item1"
+        android:title="Upload Data"/>
+    <item  android:id="@+id/item2"
+        android:title="Next Line"/>
+    <item  android:id="@+id/item3"
+        android:title="Previous Line"/>
+</menu>

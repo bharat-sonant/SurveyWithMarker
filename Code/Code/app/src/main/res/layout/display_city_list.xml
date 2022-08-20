@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="city"
+            type="com.wevois.surveyapp.CityDetails" />
+    </data>
+    <LinearLayout
+        android:id="@+id/linearLay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <TextView
+            android:id="@+id/cityName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_weight="10"
+            android:text="@{city.cityName}"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/buttonImage"
+            android:layout_width="45dp"
+            android:layout_marginRight="16dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center|right"
+            android:src="@drawable/ic_arrow_gray" />
+    </LinearLayout>
+</layout>
